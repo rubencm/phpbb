@@ -13,30 +13,28 @@
 
 namespace phpbb\storage;
 
-use phpbb\storage\exception\exception;
-
 class storage
 {
 	protected $adapter;
 
-	public function __construct()
+	public function __construct($factory, $storage_name)
 	{
-		$this->adapter = new adapter\local();
+		$this->adapter = $factory->get($storage_name);
 	}
 
 	public function put_contents($path, $content)
 	{
-		$this->adapter->put_contents($path, $contents);
+		$this->adapter->put_contents($path, $content);
 	}
 
 	public function get_contents($path)
 	{
-		$this->adapter->put_contents($path);
+		$this->adapter->get_contents($path);
 	}
 
 	public function exists($path)
 	{
-		$this->adapter->exists($path);
+		return $this->adapter->exists($path);
 	}
 
 	public function delete($path)
@@ -64,18 +62,8 @@ class storage
 		$this->adapter->delete_dir($path);
 	}
 
-	public function read_stream($path)
+	public function get_file_path($path, $filename = '')
 	{
-		$this->adapter->read_stream($path);
-	}
-
-	public function write_stream($path, $resource)
-	{
-		if (!is_resource($resource))
-		{
-			throw new exception('INVALID_RESOURCE');
-		}
-
-		$this->adapter->write_stream($path, $resource);
+		return $this->adapter->download($path, $filename);
 	}
 }

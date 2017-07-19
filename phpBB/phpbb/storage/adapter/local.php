@@ -14,7 +14,9 @@
 namespace phpbb\storage\adapter;
 
 use phpbb\storage\exception\exception;
-use phpbb\filesystem\filesystem_exception;
+use phpbb\filesystem\exception\filesystem_exception;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class local implements adapter_interface
 {
@@ -25,12 +27,32 @@ class local implements adapter_interface
 	 */
 	protected $filesystem;
 
+	/** @var string path */
+	protected $phpbb_root_path;
+
+	/** @var string path */
+	protected $root_path;
+
 	/**
 	 * Constructor
 	 */
-	public function __construct()
+	public function __construct(\phpbb\filesystem\filesystem $filesystem, $phpbb_root_path)
 	{
-		$this->filesystem = new \phpbb\filesystem\filesystem();
+		$this->filesystem = $filesystem;
+		$this->phpbb_root_path = $phpbb_root_path;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function configure($options)
+	{
+		$this->root_path = $this->phpbb_root_path . $options['path'];
+
+		if (substr($this->root_path, -1, 1) != DIRECTORY_SEPARATOR)
+		{
+			$this->root_path = $this->root_path . DIRECTORY_SEPARATOR;
+		}
 	}
 
 	/**
@@ -45,7 +67,7 @@ class local implements adapter_interface
 
 		try
 		{
-			$this->filesystem->dump_file($path, $content);
+			$this->filesystem->dump_file($this->root_path . $path, $content);
 		}
 		catch (filesystem_exception $e)
 		{
@@ -63,7 +85,7 @@ class local implements adapter_interface
 			throw new exception('', $path); // FILE_DONT_EXIST
 		}
 
-		if (($content = @file_get_contents($path)) === false)
+		if (($content = @file_get_contents($this->root_path . $path)) === false)
 		{
 			throw new exception('', $path); // CANNOT READ FILE
 		}
@@ -76,7 +98,7 @@ class local implements adapter_interface
 	 */
 	public function exists($path)
 	{
-		return $this->filesystem->exists($path);
+		return $this->filesystem->exists($this->root_path . $path);
 	}
 
 	/**
@@ -86,7 +108,7 @@ class local implements adapter_interface
 	{
 		try
 		{
-			$this->filesystem->remove($path);
+			$this->filesystem->remove($this->root_path . $path);
 		}
 		catch (filesystem_exception $e)
 		{
@@ -101,7 +123,7 @@ class local implements adapter_interface
 	{
 		try
 		{
-			$this->filesystem->rename($path_orig, $path_dest, false);
+			$this->filesystem->rename($this->root_path . $path_orig, $this->root_path . $path_dest, false);
 		}
 		catch (filesystem_exception $e)
 		{
@@ -116,7 +138,7 @@ class local implements adapter_interface
 	{
 		try
 		{
-			$this->filesystem->copy($path_orig, $path_dest, false);
+			$this->filesystem->copy($this->root_path . $path_orig, $this->root_path . $path_dest, false);
 		}
 		catch (filesystem_exception $e)
 		{
@@ -131,11 +153,22 @@ class local implements adapter_interface
 	{
 		try
 		{
-			$this->filesystem->mkdir($path);
+			$this->filesystem->mkdir($this->root_path . $path);
 		}
 		catch (filesystem_exception $e)
 		{
 			throw new exception('', $path, array(), $e); // CANNOT_CREATE_DIRECTORY
 		}
 	}
+
+	public function get_file_path($path, $filename)
+	{
+		if (!$this->exists($path))
+		{
+			throw new exception('', $path); // FILE_DONT_EXIST
+		}
+
+		return 'file://' . $this->rooth_path . $path;
+	}
+
 }

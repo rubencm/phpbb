@@ -27,6 +27,13 @@ interface adapter_interface
 	public function put_contents($path, $content);
 
 	/**
+	 * Dumps content into a file.
+	 *
+	 * @param array	options		Storage-specific options.
+	 */
+	public function configure($options);
+
+	/**
 	 * Read the contents of a file
 	 *
 	 * @param string	$path	The file to read
@@ -77,11 +84,11 @@ interface adapter_interface
 	public function copy($path_orig, $path_dest);
 
 	/**
-	 * Creates a directory recursively.
+	 * Send file to browser for download.
 	 *
-	 * @param string	$path	The directory path
+	 * @param string	$path	The file that is going to be send to the browser
 	 *
-	 * @throws \phpbb\storage\exception\exception	On any directory creation failure
+	 * @throws \phpbb\storage\exception\exception	When target exists
 	 */
-	public function create_dir($path);
+	public function get_file_path($path, $filename);
 }

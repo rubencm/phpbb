@@ -1,0 +1,22 @@
+phpbb_storage_avatar:
+    path:               /download/avatar/{file}
+    methods:            [GET]
+    defaults:
+        _controller:    phpbb.storage.controller.avatar:handle
+
+#phpbb_storage_attachment_thumbnail_controller:
+#    path:               /download/attachment/{id}/thumbnail
+#    methods:            [GET]
+#    defaults:
+#        _controller:    phpbb.storage.controller.attachment:handle
+#        thumbnail:      true
+#    requirements:
+#        id:             \d+
+
+phpbb_storage_attachment:
+    path:               /download/attachment/{id}
+    methods:            [GET]
+    defaults:
+        _controller:    phpbb.storage.controller.attachment:handle
+    requirements:
+        id:             \d+

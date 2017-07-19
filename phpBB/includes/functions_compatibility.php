@@ -439,7 +439,7 @@ function phpbb_is_writable($file)
  * @param string $path Path to check absoluteness of
  * @return boolean
  *
- * @deprecated 3.2.0-dev	use \phpbb\filesystem\filesystem::is_absolute_path() instead
+ * @deprecated 3.2.0-dev	use \phpbb\storage\helper::is_absolute_path() instead
  */
 function phpbb_is_absolute($path)
 {
@@ -454,7 +454,7 @@ function phpbb_is_absolute($path)
 /**
  * A wrapper for realpath
  *
- * @deprecated 3.2.0-dev	use \phpbb\filesystem\filesystem::realpath() instead
+ * @deprecated 3.2.0-dev	use \phpbb\storage\helper::realpath() instead
  */
 function phpbb_realpath($path)
 {
