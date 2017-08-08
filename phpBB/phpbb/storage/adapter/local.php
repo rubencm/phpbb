@@ -234,4 +234,19 @@ class local implements adapter_interface, stream_interface
 			throw new exception('STORAGE_CANNOT_COPY_RESOURCE');
 		}
 	}
+
+	public function file_properties($path)
+	{
+		return [];
+	}
+
+	public function file_size($path)
+	{
+		return filesize($this->root_path . $path);
+	}
+
+	public function file_mimetype($path)
+	{
+		return mime_content_type($this->root_path . $path);
+	}
 }

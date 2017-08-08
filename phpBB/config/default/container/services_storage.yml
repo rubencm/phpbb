@@ -1,4 +1,14 @@
 services:
+
+# Storages
+    storage.avatar:
+        class: phpbb\storage\storage
+        arguments:
+            - '@storage.adapter.factory'
+            - 'avatar'
+        tags:
+            - { name: storage }
+
 # Factory
     storage.adapter.factory:
         class: phpbb\storage\adapter_factory

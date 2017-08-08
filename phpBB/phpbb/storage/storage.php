@@ -200,4 +200,9 @@ class storage
 			$adapter->put_contents($path, stream_get_contents($resource));
 		}
 	}
+
+	public function file_info($path)
+	{
+		return new file_info($this->adapter, $path);
+	}
 }
