@@ -201,8 +201,8 @@ class storage
 		}
 	}
 
-	public function get_fileinfo($path)
+	public function file_info($path)
 	{
-		return new file_info($adapter, $path);
+		return new file_info($this->adapter, $path);
 	}
 }
