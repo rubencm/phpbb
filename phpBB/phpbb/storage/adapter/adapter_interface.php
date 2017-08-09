@@ -92,15 +92,4 @@ interface adapter_interface
 	 * @throws \phpbb\storage\exception\not_implemented	When the adapter doesnt implement the method
 	 */
 	public function copy($path_orig, $path_dest);
-
-	/**
-	 * Get file info.
-	 *
-	 * @param string	$path	The file
-	 *
-	 * @throws \phpbb\storage\exception\not_implemented	When the adapter doesnt implement the method
-	 *
-	 * @return \phpbb\storage\file_info	Returns file_info object
-	 */
-	public function file_properties($path);
 }
