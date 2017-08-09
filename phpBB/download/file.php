@@ -307,6 +307,7 @@ else
 	}
 	else
 	{
+		//
 		// Determine the 'presenting'-method
 		if ($download_mode == PHYSICAL_LINK)
 		{
