@@ -111,7 +111,7 @@ $phpbb_class_loader_ext->register();
 try
 {
 	$phpbb_container_builder = new \phpbb\di\container_builder($phpbb_root_path, $phpEx);
-	$phpbb_container = $phpbb_container_builder->with_config($phpbb_config_php_file)->get_container();
+	$phpbb_container = $phpbb_container_builder->with_config($phpbb_config_php_file)->without_cache()->get_container();
 }
 catch (InvalidArgumentException $e)
 {
