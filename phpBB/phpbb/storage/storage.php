@@ -329,4 +329,14 @@ class storage
 
 		return $row['total'];
 	}
+
+	/*
+	 * Get direct link
+	 *
+	 * @param string	$path	The file
+	 */
+	public function get_link($path)
+	{
+		return $this->get_adapter()->get_link($path);
+	}
 }
