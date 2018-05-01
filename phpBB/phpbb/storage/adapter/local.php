@@ -60,7 +60,7 @@ class local implements adapter_interface, stream_interface
 	/*
 	* @var string path
 	*/
-   protected $path;
+	protected $path;
 
 	/**
 	 * @var int dir_depth
