@@ -88,7 +88,7 @@ function send_avatar_to_browser($file, $browser)
 			// Send nothing
 		}
 
-		flush();
+//		flush();
 	}
 	else
 	{
