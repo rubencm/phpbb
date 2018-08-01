@@ -156,7 +156,7 @@ class acp_storage
 				break;
 			}
 
-			if (!check_form_key($form_key) || !check_link_hash($this->request->variable('hash', ''), 'acp_storage'))
+			if (!check_link_hash($this->request->variable('hash', ''), 'acp_storage'))
 			{
 				trigger_error($this->user->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
@@ -166,8 +166,9 @@ class acp_storage
 			foreach ($this->state['storages'] as $storage_name => $storage_options)
 			{
 				// Skip storages that have already moved files
-				if ($this->state['storage_index'] > $i++)
+				if ($this->state['storage_index'] > $i)
 				{
+					$i++;
 					continue;
 				}
 
@@ -212,8 +213,9 @@ class acp_storage
 				foreach ($this->state['storages'] as $storage_name => $storage_options)
 				{
 					// Skip storages that have already moved files
-					if ($this->state['remove_storage_index'] > $i++)
+					if ($this->state['remove_storage_index'] > $i)
 					{
+						$i++;
 						continue;
 					}
 
