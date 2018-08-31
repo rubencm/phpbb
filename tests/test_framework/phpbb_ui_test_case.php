@@ -452,6 +452,7 @@ class phpbb_ui_test_case extends phpbb_test_case
 		$config = new \phpbb\config\config(array());
 		$db = $this->get_db();
 		$db_tools = new \phpbb\db\tools($db);
+		$finder_factory = $this->createMock('\phpbb\finder\factory');
 
 		$container = new phpbb_mock_container_builder();
 		$migrator = new \phpbb\db\migrator(
@@ -474,10 +475,9 @@ class phpbb_ui_test_case extends phpbb_test_case
 			$container,
 			$db,
 			$config,
-			$user,
+			$finder_factory,
 			self::$config['table_prefix'] . 'ext',
 			dirname(__FILE__) . '/',
-			$phpEx,
 			$this->get_cache_driver()
 		);
 
