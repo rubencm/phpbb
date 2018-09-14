@@ -631,7 +631,7 @@ class acp_storage
 	{
 		static $adapters = [];
 
-		if(!isset($adapters[$storage_name]))
+		if (!isset($adapters[$storage_name]))
 		{
 			$provider = $this->get_current_provider($storage_name);
 			$provider_class = $this->provider_collection->get_by_class($provider);
@@ -658,7 +658,7 @@ class acp_storage
 	{
 		static $adapters = [];
 
-		if(!isset($adapters[$storage_name]))
+		if (!isset($adapters[$storage_name]))
 		{
 			$provider = $this->state['storages'][$storage_name]['provider'];
 			$provider_class = $this->provider_collection->get_by_class($provider);
