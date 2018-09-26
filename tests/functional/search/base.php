@@ -65,7 +65,7 @@ abstract class phpbb_functional_search_base extends phpbb_functional_test_case
 		}
 
 		$this->logout();
-		$this->assert_search_found('phpbb3+installation', 1, 3);
+		$this->assert_search_found('phpbb3+installation', 1, 4);
 		$this->assert_search_found('foosubject+barsearch', 1, 2);
 		$this->assert_search_not_found('loremipsumdedo');
 
