@@ -2218,6 +2218,9 @@ function login_box($redirect = '', $l_explain = '', $l_success = '', $admin = fa
 	global $user, $template, $auth, $phpEx, $phpbb_root_path, $config;
 	global $request, $phpbb_container, $phpbb_dispatcher, $phpbb_log;
 
+	/** @var \phpbb\controller\helper $controller_helper */
+	$controller_helper = $phpbb_container->get('controller.helper');
+
 	$err = '';
 	$form_name = 'login';
 	$username = $autologin = false;
@@ -2397,7 +2400,7 @@ function login_box($redirect = '', $l_explain = '', $l_success = '', $admin = fa
 				// Assign admin contact to some error messages
 				if ($result['error_msg'] == 'LOGIN_ERROR_USERNAME' || $result['error_msg'] == 'LOGIN_ERROR_PASSWORD')
 				{
-					$err = sprintf($user->lang[$result['error_msg']], '<a href="' . append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=contactadmin') . '">', '</a>');
+					$err = sprintf($user->lang[$result['error_msg']], '<a href="' . $controller_helper->route('phpbb_message_admin') . '">', '</a>');
 				}
 
 			break;
@@ -3978,7 +3981,7 @@ function page_header($page_title = '', $display_online_list = false, $item_id = 
 		'U_SEARCH_UNREAD'		=> append_sid("{$phpbb_root_path}search.$phpEx", 'search_id=unreadposts'),
 		'U_SEARCH_ACTIVE_TOPICS'=> append_sid("{$phpbb_root_path}search.$phpEx", 'search_id=active_topics'),
 		'U_DELETE_COOKIES'		=> append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=delete_cookies'),
-		'U_CONTACT_US'			=> ($config['contact_admin_form_enable'] && $config['email_enable']) ? append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=contactadmin') : '',
+		'U_CONTACT_US'			=> ($config['contact_admin_form_enable'] && $config['email_enable']) ? $controller_helper->route('phpbb_message_admin') : '',
 		'U_TEAM'				=> (!$auth->acl_get('u_viewprofile')) ? '' : append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=team'),
 		'U_TERMS_USE'			=> append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=terms'),
 		'U_PRIVACY'				=> append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=privacy'),
@@ -4338,9 +4341,13 @@ function phpbb_to_numeric($input)
 */
 function phpbb_get_board_contact(\phpbb\config\config $config, $phpEx)
 {
+	global $phpbb_container;
+
+	$controller_helper = $phpbb_container->get('controller.helper');
+
 	if ($config['contact_admin_form_enable'])
 	{
-		return generate_board_url() . '/memberlist.' . $phpEx . '?mode=contactadmin';
+		return generate_board_url() . $controller_helper->route('phpbb_message_admin');
 	}
 	else
 	{
@@ -4358,9 +4365,13 @@ function phpbb_get_board_contact(\phpbb\config\config $config, $phpEx)
 */
 function phpbb_get_board_contact_link(\phpbb\config\config $config, $phpbb_root_path, $phpEx)
 {
+	global $phpbb_container;
+
+	$controller_helper = $phpbb_container->get('controller.helper');
+
 	if ($config['contact_admin_form_enable'] && $config['email_enable'])
 	{
-		return append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=contactadmin');
+		return $controller_helper->route('phpbb_message_admin');
 	}
 	else
 	{

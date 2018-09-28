@@ -1,0 +1,18 @@
+phpbb_message_admin:
+    path:             /contact/admin
+    defaults:
+        _controller:  message.controller.admin:handle
+
+phpbb_message_topic:
+    path:             /email/topic/{topic_id}
+    defaults:
+        _controller:  message.controller.topic:handle
+    requirements:
+        topic_id:           \d+
+
+phpbb_message_user:
+    path:             /email/user/{user_id}
+    defaults:
+        _controller:  message.controller.user:handle
+    requirements:
+        user_id:           \d+
