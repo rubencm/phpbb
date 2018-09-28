@@ -7,7 +7,7 @@ services:
             - '@filesystem'
             - '%core.root_path%'
             - '%core.php_ext%'
-            - '%finder.not_use_cache%'
+            - '%finder.cache%'
         tags:
             - { name: install_database_install, order: 10 }
 
