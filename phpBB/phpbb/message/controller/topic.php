@@ -94,7 +94,7 @@ class topic
 
 		if ($error)
 		{
-			trigger_error($error);
+			return $this->helper->message($error);
 		}
 
 		if ($this->request->is_set_post('submit'))
