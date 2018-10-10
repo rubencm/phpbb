@@ -1,0 +1,28 @@
+services:
+
+# Controllers
+    members.controller.online:
+        class: phpbb\members\controller\online
+        arguments:
+            - '@auth'
+            - '@config'
+            - '@dbal.conn'
+            - '@dispatcher'
+            - '@group_helper'
+            - '@controller.helper'
+            - '@language'
+            - '@pagination'
+            - '@request'
+            - '@router'
+            - '@template'
+            - '@user'
+
+    members.controller.online.whois:
+        class: phpbb\members\controller\online_whois
+        arguments:
+            - '@auth'
+            - '@dbal.conn'
+            - '@controller.helper'
+            - '@language'
+            - '@template'
+            - '@user'
