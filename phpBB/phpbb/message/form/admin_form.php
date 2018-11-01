@@ -13,38 +13,47 @@
 
 namespace phpbb\message\form;
 
+use phpbb\auth\auth;
+use phpbb\config\config;
+use phpbb\config\db_text;
+use phpbb\db\driver\driver_interface;
+use phpbb\event\dispatcher_interface;
+use phpbb\user;
+
 /**
 * Class admin_form
 * Displays a message to the user and allows him to send an email
 */
 class admin_form extends form
 {
-	/** @var \phpbb\config\db_text */
+	/** @var db_text */
 	protected $config_text;
 
-	/** @var \phpbb\event\dispatcher_interface */
+	/** @var dispatcher_interface */
 	protected $dispatcher;
 
 	/** @var string */
 	protected $subject;
+
 	/** @var string */
 	protected $sender_name;
+
 	/** @var string */
 	protected $sender_address;
 
 	/**
 	* Construct
 	*
-	* @param \phpbb\auth\auth $auth
-	* @param \phpbb\config\config $config
-	* @param \phpbb\config\db_text $config_text
-	* @param \phpbb\db\driver\driver_interface $db
-	* @param \phpbb\user $user
-	* @param \phpbb\event\dispatcher_interface $dispatcher
+	* @param auth $auth
+	* @param config $config
+	* @param db_text $config_text
+	* @param driver_interface $db
+	* @param user $user
+	* @param dispatcher_interface $dispatcher
 	* @param string $phpbb_root_path
 	* @param string $phpEx
 	*/
-	public function __construct(\phpbb\auth\auth $auth, \phpbb\config\config $config, \phpbb\config\db_text $config_text, \phpbb\db\driver\driver_interface $db, \phpbb\user $user, \phpbb\event\dispatcher_interface $dispatcher, $phpbb_root_path, $phpEx)
+	public function __construct(auth $auth, config $config, db_text $config_text, driver_interface $db, user $user, dispatcher_interface $dispatcher, $phpbb_root_path, $phpEx)
 	{
 		parent::__construct($auth, $config, $db, $user, $phpbb_root_path, $phpEx);
 		$this->config_text = $config_text;

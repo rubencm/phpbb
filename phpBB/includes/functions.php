@@ -4347,7 +4347,7 @@ function phpbb_get_board_contact(\phpbb\config\config $config, $phpEx)
 
 	if ($config['contact_admin_form_enable'])
 	{
-		return generate_board_url() . $controller_helper->route('phpbb_message_admin');
+		return $controller_helper->route('phpbb_message_admin', [], true, false, \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
 	}
 	else
 	{
