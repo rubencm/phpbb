@@ -61,6 +61,8 @@ class container_configuration implements ConfigurationInterface
 					->addDefaultsIfNotSet()
 					->children()
 						->booleanNode('log_errors')->defaultValue(false)->end()
+					->end()
+				->end()
 				->arrayNode('finder')
 					->addDefaultsIfNotSet()
 					->children()
