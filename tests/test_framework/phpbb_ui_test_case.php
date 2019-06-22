@@ -451,8 +451,9 @@ class phpbb_ui_test_case extends phpbb_test_case
 
 		$config = new \phpbb\config\config(array());
 		$db = $this->get_db();
-		$db_tools = new \phpbb\db\tools($db);
-		$finder_factory = $this->createMock('\phpbb\finder\factory');
+		$factory = new \phpbb\db\tools\factory();
+		$finder_factory = new \phpbb\finder\factory(null, false, $phpbb_root_path, $phpEx);
+		$db_tools = $factory->get($db);
 
 		$container = new phpbb_mock_container_builder();
 		$migrator = new \phpbb\db\migrator(
@@ -469,7 +470,6 @@ class phpbb_ui_test_case extends phpbb_test_case
 		);
 		$container->set('migrator', $migrator);
 		$container->set('dispatcher', new phpbb_mock_event_dispatcher());
-		$user = new \phpbb\user('\phpbb\datetime');
 
 		$extension_manager = new \phpbb\extension\manager(
 			$container,
@@ -478,7 +478,7 @@ class phpbb_ui_test_case extends phpbb_test_case
 			$finder_factory,
 			self::$config['table_prefix'] . 'ext',
 			dirname(__FILE__) . '/',
-			$this->get_cache_driver()
+			new \phpbb\cache\service($this->get_cache_driver(), $config, $this->db, $phpbb_root_path, $phpEx)
 		);
 
 		return $extension_manager;
