@@ -6,6 +6,7 @@ parameters:
 
 services:
     config.php:
+        public: true
         synthetic: true
 
     dbal.conn:
@@ -21,9 +22,11 @@ services:
 
     ext.manager:
         class: phpbb\extension\manager_mock
+        public: true
 
     config:
         class: phpbb\config\config
+        public: true
         arguments:
             - []
 

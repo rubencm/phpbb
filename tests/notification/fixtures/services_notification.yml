@@ -2,6 +2,8 @@ imports:
     - { resource: ../../../phpBB/config/default/container/services_notification.yml }
 
 services:
+    _defaults: { public: true }
+
     notification_manager:
         synthetic: true
 
@@ -69,5 +71,6 @@ services:
         class: phpbb\notification\type\test
         shared: false
         parent: notification.type.base
+        public: true
         tags:
             - { name: notification.type }

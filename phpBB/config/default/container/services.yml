@@ -70,6 +70,7 @@ services:
 
     config:
         class: phpbb\config\db
+        public: true
         arguments:
             - '@dbal.conn'
             - '@cache.driver'

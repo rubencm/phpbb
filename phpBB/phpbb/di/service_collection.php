@@ -22,7 +22,12 @@ use Traversable;
 class service_collection extends \ArrayObject
 {
 	/**
-	* @var Traversable
+	 * @var \Symfony\Component\DependencyInjection\ContainerInterface
+	 */
+	protected $container;
+
+	/**
+	 * @var array
 	*/
 	protected $service_classes;
 
@@ -31,18 +36,10 @@ class service_collection extends \ArrayObject
 	*
 	* @param \IteratorAggregate $service_classes Service collection classes
 	*/
-	public function __construct(iterable $service_classes)
+	public function __construct(ContainerInterface $container)
 	{
-		if (!empty($service_classes))
-		{
-			var_dump(get_class_methods($service_classes));
-			/** @var \IteratorAggregate $service_traversable */
-			$this->service_classes = $service_classes->getIterator();
-			foreach ($this->service_classes as $foo => $bar)
-			{
-				echo $foo . '<br>' . $bar->getName();
-			}
-		}
+		$this->container = $container;
+		$this->service_classes = array();
 	}
 
 	/**
@@ -58,7 +55,7 @@ class service_collection extends \ArrayObject
 	*/
 	public function offsetGet($index)
 	{
-		return $this->service_classes[$index];
+		return $this->container->get($index);
 	}
 
 	/**

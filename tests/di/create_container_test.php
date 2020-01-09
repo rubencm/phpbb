@@ -13,6 +13,9 @@
 
 namespace
 {
+
+	use Symfony\Component\DependencyInjection\ContainerBuilder;
+
 	require_once dirname(__FILE__) . '/fixtures/ext/vendor/enabled_4/di/extension.php';
 
 	class phpbb_di_container_test extends \phpbb_test_case
@@ -44,6 +47,7 @@ namespace
 
 		public function test_default_container()
 		{
+			/** @var ContainerBuilder $container */
 			$container = $this->builder->get_container();
 			$this->assertInstanceOf('Symfony\Component\DependencyInjection\ContainerBuilder', $container);
 			$this->assertFalse($container->hasParameter('container_exception'));
@@ -52,7 +56,7 @@ namespace
 			$this->assertTrue($container->hasParameter('core'));
 
 			// Checks compile_container
-			$this->assertTrue($container->isFrozen());
+			$this->assertTrue($container->isCompiled());
 
 			// Checks inject_config
 			$this->assertTrue($container->hasParameter('core.table_prefix'));
@@ -74,7 +78,7 @@ namespace
 			// Checks the construction of a dumped container
 			$container = $this->builder->get_container();
 			$this->assertInstanceOf('phpbb_cache_container', $container);
-			$this->assertTrue($container->isFrozen());
+			$this->assertTrue($container->isCompiled());
 		}
 
 		public function test_tables_mapping()
@@ -102,7 +106,7 @@ namespace
 			$container = $this->builder->get_container();
 			$this->assertNotInstanceOf('phpbb_cache_container', $container);
 			$this->assertInstanceOf('Symfony\Component\DependencyInjection\ContainerBuilder', $container);
-			$this->assertTrue($container->isFrozen());
+			$this->assertTrue($container->isCompiled());
 		}
 
 		public function test_without_extensions()
@@ -127,7 +131,7 @@ namespace
 			$this->assertInstanceOf('Symfony\Component\DependencyInjection\ContainerBuilder', $container);
 
 			// Checks compile_container
-			$this->assertFalse($container->isFrozen());
+			$this->assertFalse($container->isCompiled());
 		}
 
 		public function test_with_config_path()
