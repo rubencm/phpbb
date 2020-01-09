@@ -38,21 +38,21 @@
 		"marc1706/fast-image-size": "^1.1",
 		"patchwork/utf8": "^1.1",
 		"s9e/text-formatter": "^2.0",
-		"symfony/config": "~3.4",
-		"symfony/console": "~3.4",
-		"symfony/debug": "~3.4",
-		"symfony/dependency-injection": "~3.4",
-		"symfony/event-dispatcher": "~3.4",
-		"symfony/filesystem": "~3.4",
-		"symfony/finder": "~3.4",
-		"symfony/http-foundation": "~3.4",
-		"symfony/http-kernel": "~3.4",
+		"symfony/config": "~4.4",
+		"symfony/console": "~4.4",
+		"symfony/debug": "~4.4",
+		"symfony/dependency-injection": "~4.4",
+		"symfony/event-dispatcher": "~4.4",
+		"symfony/filesystem": "~4.4",
+		"symfony/finder": "~4.4",
+		"symfony/http-foundation": "~4.4",
+		"symfony/http-kernel": "~4.4",
 		"symfony/polyfill-intl-idn": "~1.17.0",
-		"symfony/process": "^3.4",
-		"symfony/proxy-manager-bridge": "~3.4",
-		"symfony/routing": "~3.4",
-		"symfony/twig-bridge": "~3.4",
-		"symfony/yaml": "~3.4",
+		"symfony/process": "~4.4",
+		"symfony/proxy-manager-bridge": "~4.4",
+		"symfony/routing": "~4.4",
+		"symfony/twig-bridge": "~4.4",
+		"symfony/yaml": "~4.4",
 		"twig/twig": "^1.0 || ^2.0"
 	},
 	"require-dev": {
@@ -62,13 +62,14 @@
 		"phpunit/dbunit": "~4.0",
 		"phpunit/phpunit": "^7.0",
 		"squizlabs/php_codesniffer": "~3.4",
-		"symfony/browser-kit": "~3.4",
-		"symfony/css-selector": "~3.4",
-		"symfony/dom-crawler": "~3.4"
+		"symfony/browser-kit": "~4.4",
+		"symfony/css-selector": "~4.4",
+		"symfony/dom-crawler": "~4.4",
+		"sami/sami": "^4.1"
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "3.3.x-dev"
+			"dev-master": "4.0.x-dev"
 		}
 	},
 	"config": {

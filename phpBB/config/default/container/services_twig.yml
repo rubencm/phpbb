@@ -29,7 +29,7 @@ services:
     template.twig.extensions.collection:
         class: phpbb\di\service_collection
         arguments:
-            - '@service_container'
+            - !tagged_iterator twig.extension
         tags:
             - { name: service_collection, tag: twig.extension }
 

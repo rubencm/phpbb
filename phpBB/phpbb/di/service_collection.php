@@ -14,6 +14,7 @@
 namespace phpbb\di;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Traversable;
 
 /**
 * Collection of services to be configured at container compile time.
@@ -21,24 +22,27 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class service_collection extends \ArrayObject
 {
 	/**
-	* @var \Symfony\Component\DependencyInjection\ContainerInterface
-	*/
-	protected $container;
-
-	/**
-	* @var array
+	* @var Traversable
 	*/
 	protected $service_classes;
 
 	/**
 	* Constructor
 	*
-	* @param ContainerInterface $container Container object
+	* @param \IteratorAggregate $service_classes Service collection classes
 	*/
-	public function __construct(ContainerInterface $container)
+	public function __construct(iterable $service_classes)
 	{
-		$this->container = $container;
-		$this->service_classes = array();
+		if (!empty($service_classes))
+		{
+			var_dump(get_class_methods($service_classes));
+			/** @var \IteratorAggregate $service_traversable */
+			$this->service_classes = $service_classes->getIterator();
+			foreach ($this->service_classes as $foo => $bar)
+			{
+				echo $foo . '<br>' . $bar->getName();
+			}
+		}
 	}
 
 	/**
@@ -54,7 +58,7 @@ class service_collection extends \ArrayObject
 	*/
 	public function offsetGet($index)
 	{
-		return $this->container->get($index);
+		return $this->service_classes[$index];
 	}
 
 	/**

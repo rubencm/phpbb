@@ -39,7 +39,7 @@ class exception_subscriber implements EventSubscriberInterface
 	 *
 	 * @param ConsoleErrorEvent $event
 	 */
-	public function on_error(ConsoleErrorEvent $event)
+	public function on_exception(ConsoleErrorEvent $event)
 	{
 		$original_exception = $event->getError();
 
@@ -56,8 +56,8 @@ class exception_subscriber implements EventSubscriberInterface
 
 	static public function getSubscribedEvents()
 	{
-		return [
-			ConsoleEvents::ERROR => 'on_error',
-		];
+		return array(
+			ConsoleEvents::ERROR => 'on_exception',
+		);
 	}
 }

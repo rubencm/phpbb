@@ -55,6 +55,7 @@ services:
 
     installer.helper.iohandler:
         class: phpbb\install\helper\iohandler\iohandler_interface
+        public: true
         factory: ['@installer.helper.iohandler_factory', get]
 
     installer.helper.container_factory:

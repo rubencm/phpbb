@@ -33,6 +33,10 @@ services:
         arguments:
             - '%core.root_path%'
 
+    filesystem:
+        class: phpbb\filesystem\filesystem
+        public: true
+
     kernel_exception_subscriber:
         class: phpbb\install\event\kernel_exception_subscriber
         arguments:
@@ -64,6 +68,7 @@ services:
 
     template:
         class: phpbb\template\twig\twig
+        public: true
         arguments:
             - '@path_helper'
             - '@config'

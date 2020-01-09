@@ -59,7 +59,7 @@ class dispatcher extends EventDispatcher implements dispatcher_interface
 
 		foreach ((array) $eventName as $name)
 		{
-			$event = parent::dispatch($name, $event);
+			$event = parent::dispatch($event, $name);
 		}
 
 		return $event;

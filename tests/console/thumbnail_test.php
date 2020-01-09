@@ -23,6 +23,7 @@ class phpbb_console_command_thumbnail_test extends phpbb_database_test_case
 	protected $config;
 	protected $cache;
 	protected $user;
+	protected $language;
 	protected $phpEx;
 	protected $phpbb_root_path;
 	protected $application;
@@ -34,7 +35,7 @@ class phpbb_console_command_thumbnail_test extends phpbb_database_test_case
 
 	protected function setUp(): void
 	{
-		global $config, $phpbb_root_path, $phpEx, $phpbb_filesystem;
+		global $config, $phpbb_root_path, $phpEx, $phpbb_filesystem, $phpbb_dispatcher;
 
 		if (!@extension_loaded('gd'))
 		{
@@ -50,7 +51,8 @@ class phpbb_console_command_thumbnail_test extends phpbb_database_test_case
 		));
 
 		$this->db = $this->db = $this->new_dbal();
-		$this->user = $this->createMock('\phpbb\user');
+		$this->language = new \phpbb\language\language(new \phpbb\language\language_file_loader($phpbb_root_path, $phpEx));
+		$this->user = new \phpbb\user($this->language, '\phpbb\datetime');
 		$this->phpbb_root_path = $phpbb_root_path;
 		$this->phpEx = $phpEx;
 
@@ -59,6 +61,7 @@ class phpbb_console_command_thumbnail_test extends phpbb_database_test_case
 			'png' => array('display_cat' => ATTACHMENT_CATEGORY_IMAGE),
 			'txt' => array('display_cat' => ATTACHMENT_CATEGORY_NONE),
 		)));
+		$phpbb_dispatcher = new phpbb_mock_event_dispatcher();
 
 		$this->application = new Application();
 		$this->application->add(new generate($config, $this->user, $this->db, $this->cache, $this->phpbb_root_path, $this->phpEx));
@@ -86,6 +89,8 @@ class phpbb_console_command_thumbnail_test extends phpbb_database_test_case
 
 	public function test_thumbnails()
 	{
+		$this->language->add_lang('cli');
+
 		$command_tester = $this->get_command_tester('thumbnail:generate');
 		$exit_status = $command_tester->execute(array('command' => 'thumbnail:generate'));
 
