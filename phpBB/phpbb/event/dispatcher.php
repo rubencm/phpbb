@@ -15,6 +15,7 @@ namespace phpbb\event;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\EventDispatcher\GenericEvent;
 
 /**
 * Extension of the Symfony EventDispatcher
@@ -55,6 +56,11 @@ class dispatcher extends EventDispatcher implements dispatcher_interface
 		if ($this->disabled)
 		{
 			return $event;
+		}
+
+		if ($event === null)
+		{
+			$event = new GenericEvent();
 		}
 
 		foreach ((array) $eventName as $name)
