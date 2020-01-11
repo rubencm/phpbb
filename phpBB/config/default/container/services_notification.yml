@@ -1,4 +1,6 @@
 services:
+    _defaults: { public: true }
+
     notification_manager:
         class: phpbb\notification\manager
         arguments:
@@ -38,6 +40,7 @@ services:
         class: phpbb\notification\type\admin_activate_user
         shared: false
         parent: notification.type.base
+        public: true
         calls:
             - [set_user_loader, ['@user_loader']]
             - [set_config, ['@config']]
@@ -48,6 +51,7 @@ services:
         class: phpbb\notification\type\approve_post
         shared: false
         parent: notification.type.post
+        public: true
         tags:
             - { name: notification.type }
 
@@ -55,6 +59,7 @@ services:
         class: phpbb\notification\type\approve_topic
         shared: false
         parent: notification.type.topic
+        public: true
         tags:
             - { name: notification.type }
 
@@ -62,6 +67,7 @@ services:
         class: phpbb\notification\type\bookmark
         shared: false
         parent: notification.type.post
+        public: true
         tags:
             - { name: notification.type }
 
@@ -69,6 +75,7 @@ services:
         class: phpbb\notification\type\disapprove_post
         shared: false
         parent: notification.type.post
+        public: true
         tags:
             - { name: notification.type }
 
@@ -76,6 +83,7 @@ services:
         class: phpbb\notification\type\disapprove_topic
         shared: false
         parent: notification.type.topic
+        public: true
         tags:
             - { name: notification.type }
 
@@ -83,6 +91,7 @@ services:
         class: phpbb\notification\type\group_request
         shared: false
         parent: notification.type.base
+        public: true
         calls:
             - [set_user_loader, ['@user_loader']]
         tags:
@@ -92,6 +101,7 @@ services:
         class: phpbb\notification\type\group_request_approved
         shared: false
         parent: notification.type.base
+        public: true
         tags:
             - { name: notification.type }
 
@@ -99,6 +109,7 @@ services:
         class: phpbb\notification\type\pm
         shared: false
         parent: notification.type.base
+        public: true
         calls:
             - [set_user_loader, ['@user_loader']]
             - [set_config, ['@config']]
@@ -109,6 +120,7 @@ services:
         class: phpbb\notification\type\post
         shared: false
         parent: notification.type.base
+        public: true
         calls:
             - [set_user_loader, ['@user_loader']]
             - [set_config, ['@config']]
@@ -119,6 +131,7 @@ services:
         class: phpbb\notification\type\post_in_queue
         shared: false
         parent: notification.type.post
+        public: true
         tags:
             - { name: notification.type }
 
@@ -126,6 +139,7 @@ services:
         class: phpbb\notification\type\quote
         shared: false
         parent: notification.type.post
+        public: true
         calls:
             - [set_utils, ['@text_formatter.utils']]
         tags:
@@ -135,6 +149,7 @@ services:
         class: phpbb\notification\type\report_pm
         shared: false
         parent: notification.type.pm
+        public: true
         tags:
             - { name: notification.type }
 
@@ -142,6 +157,7 @@ services:
         class: phpbb\notification\type\report_pm_closed
         shared: false
         parent: notification.type.pm
+        public: true
         tags:
             - { name: notification.type }
 
@@ -149,6 +165,7 @@ services:
         class: phpbb\notification\type\report_post
         shared: false
         parent: notification.type.post
+        public: true
         tags:
             - { name: notification.type }
 
@@ -156,6 +173,7 @@ services:
         class: phpbb\notification\type\report_post_closed
         shared: false
         parent: notification.type.post
+        public: true
         tags:
             - { name: notification.type }
 
@@ -163,6 +181,7 @@ services:
         class: phpbb\notification\type\topic
         shared: false
         parent: notification.type.base
+        public: true
         calls:
             - [set_user_loader, ['@user_loader']]
             - [set_config, ['@config']]
@@ -173,6 +192,7 @@ services:
         class: phpbb\notification\type\topic_in_queue
         shared: false
         parent: notification.type.topic
+        public: true
         tags:
             - { name: notification.type }
 
