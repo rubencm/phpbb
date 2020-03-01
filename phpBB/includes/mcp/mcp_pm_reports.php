@@ -135,6 +135,7 @@ class mcp_pm_reports
 						ORDER BY filetime DESC';
 					$result = $db->sql_query($sql);
 
+					$attachments = [];
 					while ($row = $db->sql_fetchrow($result))
 					{
 						$attachments[] = $row;
@@ -243,7 +244,7 @@ class mcp_pm_reports
 				$result = $db->sql_query_limit($sql, $config['topics_per_page'], $start);
 
 				$i = 0;
-				$report_ids = array();
+				$report_ids = $row_num = array();
 				while ($row = $db->sql_fetchrow($result))
 				{
 					$report_ids[] = $row['report_id'];

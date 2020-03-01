@@ -197,7 +197,7 @@ class acp_main
 						}
 
 						// Resync post counts
-						$start = $max_post_id = 0;
+						$start = 0;
 
 						// Find the maximum post ID, we can only stop the cycle when we've reached it
 						$sql = 'SELECT MAX(forum_last_post_id) as max_post_id

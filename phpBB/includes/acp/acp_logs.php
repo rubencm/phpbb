@@ -22,6 +22,7 @@ if (!defined('IN_PHPBB'))
 class acp_logs
 {
 	var $u_action;
+	public $log_type;
 
 	function main($id, $mode)
 	{

@@ -467,7 +467,6 @@ class acp_board
 
 			default:
 				trigger_error('NO_MODE', E_USER_ERROR);
-			break;
 		}
 
 		/**

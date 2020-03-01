@@ -368,7 +368,6 @@ class mcp_queue
 				$user->add_lang(array('viewtopic', 'viewforum'));
 
 				$topic_id = $request->variable('t', 0);
-				$forum_info = array();
 
 				/* @var $pagination \phpbb\pagination */
 				$pagination = $phpbb_container->get('pagination');
@@ -411,13 +410,6 @@ class mcp_queue
 					{
 						trigger_error('NOT_MODERATOR');
 					}
-
-					$sql = 'SELECT SUM(forum_topics_approved) as sum_forum_topics
-						FROM ' . FORUMS_TABLE . '
-						WHERE ' . $db->sql_in_set('forum_id', $forum_list);
-					$result = $db->sql_query($sql);
-					$forum_info['forum_topics_approved'] = (int) $db->sql_fetchfield('sum_forum_topics');
-					$db->sql_freeresult($result);
 				}
 				else
 				{
@@ -485,7 +477,7 @@ class mcp_queue
 					$result = $db->sql_query_limit($sql, $config['topics_per_page'], $start);
 
 					$i = 0;
-					$post_ids = array();
+					$post_ids = $row_num = array();
 					while ($row = $db->sql_fetchrow($result))
 					{
 						$post_ids[] = $row['post_id'];

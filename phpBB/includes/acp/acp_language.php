@@ -22,9 +22,6 @@ if (!defined('IN_PHPBB'))
 class acp_language
 {
 	var $u_action;
-	var $main_files;
-	var $language_header = '';
-	var $lang_header = '';
 
 	var $language_file = '';
 	var $language_directory = '';

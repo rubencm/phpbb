@@ -228,7 +228,6 @@ class acp_permissions
 
 			default:
 				trigger_error('NO_MODE', E_USER_ERROR);
-			break;
 		}
 
 		$template->assign_vars(array(
@@ -1058,13 +1057,13 @@ class acp_permissions
 			// Get group auth settings
 			$hold_ary = $auth->acl_group_raw_data(array_keys($groups), $permission, $forum_id);
 
-			foreach ($hold_ary as $group_id => $forum_ary)
+			foreach (array_keys($hold_ary) as $group_id)
 			{
 				$groups[$group_id]['auth_setting'] = $hold_ary[$group_id][$forum_id][$permission];
 			}
 			unset($hold_ary);
 
-			foreach ($groups as $id => $row)
+			foreach ($groups as $row)
 			{
 				switch ($row['auth_setting'])
 				{
