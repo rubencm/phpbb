@@ -9,6 +9,7 @@ services:
             - '@dbal.conn'
             - '@dispatcher'
             - '@group_helper'
+            - '@viewonline_helper'
             - '@controller.helper'
             - '@language'
             - '@pagination'
@@ -16,6 +17,8 @@ services:
             - '@router'
             - '@template'
             - '@user'
+            - '%core.root_path%'
+            - '%core.php_ext%'
 
     members.controller.online.whois:
         class: phpbb\members\controller\online_whois
@@ -26,3 +29,8 @@ services:
             - '@language'
             - '@template'
             - '@user'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+
+    viewonline_helper:
+        class: phpbb\members\viewonline_helper

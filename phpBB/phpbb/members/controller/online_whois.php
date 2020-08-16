@@ -13,12 +13,14 @@
 
 namespace phpbb\members\controller;
 
-use \phpbb\auth\auth;
-use \phpbb\db\driver\driver_interface;
-use \phpbb\controller\helper;
-use \phpbb\language\language;
-use \phpbb\template\template;
-use \phpbb\user;
+use phpbb\auth\auth;
+use phpbb\db\driver\driver_interface;
+use phpbb\controller\helper;
+use phpbb\exception\http_exception;
+use phpbb\language\language;
+use phpbb\template\template;
+use phpbb\user;
+use Symfony\Component\HttpFoundation\Response;
 
 class online_whois
 {
@@ -52,7 +54,28 @@ class online_whois
 	 */
 	protected $user;
 
-	public function __construct(auth $auth, driver_interface $db, helper $helper, language $language, template $template, user $user)
+	/**
+	 * @var string
+	 */
+	private $phpbb_root_path;
+
+	/**
+	 * @var string
+	 */
+	private $phpEx;
+
+	/**
+	 * online_whois constructor.
+	 * @param auth $auth
+	 * @param driver_interface $db
+	 * @param helper $helper
+	 * @param language $language
+	 * @param template $template
+	 * @param user $user
+	 * @param string $phpbb_root_path
+	 * @param string $phpEx
+	 */
+	public function __construct(auth $auth, driver_interface $db, helper $helper, language $language, template $template, user $user, string $phpbb_root_path, string $phpEx)
 	{
 		$this->auth				= $auth;
 		$this->db				= $db;
@@ -60,20 +83,21 @@ class online_whois
 		$this->language			= $language;
 		$this->template			= $template;
 		$this->user				= $user;
+		$this->phpbb_root_path	= $phpbb_root_path;
+		$this->phpEx			= $phpEx;
 	}
 
 	/**
 	 * Controller for /online/whois/{session_id} route
 	 *
-	 * @return \Symfony\Component\HttpFoundation\Response a Symfony response object
+	 * @param $session_id
+	 * @return Response a Symfony response object
 	 */
 	public function handle($session_id)
 	{
-		global $phpbb_root_path, $phpEx;
-
 		if (!function_exists('user_ipwhois'))
 		{
-			include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+			include($this->phpbb_root_path . 'includes/functions_user.' . $this->phpEx);
 		}
 
 		// Load language strings
@@ -112,5 +136,4 @@ class online_whois
 		// Render
 		return $this->helper->render('viewonline_whois.html', $this->language->lang('WHO_IS_ONLINE'));
 	}
-
 }
