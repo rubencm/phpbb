@@ -81,7 +81,7 @@ abstract class form
 	*/
 	public function get_template_file()
 	{
-		return 'memberlist_email.html';
+		return 'email.html';
 	}
 
 	/**
