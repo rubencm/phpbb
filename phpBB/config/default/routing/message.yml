@@ -1,5 +1,5 @@
 phpbb_message_admin:
-    path:             /contact/admin
+    path:             /contact
     defaults:
         _controller:  message.controller.admin:handle
 

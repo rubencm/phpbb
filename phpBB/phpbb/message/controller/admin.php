@@ -13,11 +13,12 @@
 
 namespace phpbb\message\controller;
 
-use \phpbb\message\form\form;
-use \phpbb\controller\helper;
-use \phpbb\language\language;
-use \phpbb\request\request_interface;
-use \phpbb\template\template;
+use phpbb\message\form\form;
+use phpbb\controller\helper;
+use phpbb\language\language;
+use phpbb\request\request_interface;
+use phpbb\template\template;
+use Symfony\Component\HttpFoundation\Response;
 
 class admin
 {
@@ -46,6 +47,14 @@ class admin
 	 */
 	protected $template;
 
+	/**
+	 * admin constructor.
+	 * @param form $form
+	 * @param helper $helper
+	 * @param language $language
+	 * @param request_interface $request
+	 * @param template $template
+	 */
 	public function __construct(form $form, helper $helper, language $language, request_interface $request, template $template)
 	{
 		$this->form				= $form;
@@ -58,7 +67,7 @@ class admin
 	/**
 	 * Controller for /contact/admin route
 	 *
-	 * @return \Symfony\Component\HttpFoundation\Response a Symfony response object
+	 * @return Response a Symfony response object
 	 */
 	public function handle()
 	{

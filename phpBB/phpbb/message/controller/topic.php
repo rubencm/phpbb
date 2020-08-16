@@ -13,12 +13,13 @@
 
 namespace phpbb\message\controller;
 
-use \phpbb\db\driver\driver_interface;
-use \phpbb\message\form\form;
-use \phpbb\controller\helper;
-use \phpbb\language\language;
-use \phpbb\request\request_interface;
-use \phpbb\template\template;
+use phpbb\db\driver\driver_interface;
+use phpbb\message\form\form;
+use phpbb\controller\helper;
+use phpbb\language\language;
+use phpbb\request\request_interface;
+use phpbb\template\template;
+use Symfony\Component\HttpFoundation\Response;
 
 class topic
 {
@@ -52,6 +53,15 @@ class topic
 	 */
 	protected $template;
 
+	/**
+	 * topic constructor.
+	 * @param driver_interface $db
+	 * @param form $form
+	 * @param helper $helper
+	 * @param language $language
+	 * @param request_interface $request
+	 * @param template $template
+	 */
 	public function __construct(driver_interface $db, form $form, helper $helper, language $language, request_interface $request, template $template)
 	{
 		$this->db				= $db;
@@ -67,7 +77,7 @@ class topic
 	 *
 	 * @param int		$topic_id		Topic id
 	 *
-	 * @return \Symfony\Component\HttpFoundation\Response a Symfony response object
+	 * @return Response a Symfony response object
 	 */
 	public function handle($topic_id)
 	{
