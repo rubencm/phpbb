@@ -1,4 +1,6 @@
 services:
+    _defaults: { public: true }
+
     installer.install_filesystem.create_config_file:
         class: phpbb\install\module\install_filesystem\task\create_config_file
         arguments:
@@ -22,6 +24,7 @@ services:
     installer.module.filesystem_install:
         class: phpbb\install\module\install_filesystem\module
         parent: installer.module_base
+        public: true
         arguments:
             - '@installer.module.install_filesystem_collection'
         tags:

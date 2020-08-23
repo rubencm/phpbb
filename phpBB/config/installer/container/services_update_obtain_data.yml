@@ -1,4 +1,6 @@
 services:
+    _defaults: { public: true }
+
     installer.obtain_data.update_options:
         class: phpbb\install\module\obtain_data\task\obtain_update_settings
         arguments:
@@ -45,6 +47,7 @@ services:
     installer.module.obtain_data_update:
         class: phpbb\install\module\obtain_data\update_module
         parent: installer.module_base
+        public: true
         arguments:
             - '@installer.module.update_obtain_data_collection'
             - true

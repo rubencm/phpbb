@@ -1,4 +1,6 @@
 services:
+    _defaults: { public: true }
+
     console.exception_subscriber:
         class: phpbb\console\exception_subscriber
         arguments:
@@ -111,6 +113,7 @@ services:
     console.command.db.revert:
         class: phpbb\console\command\db\revert
         parent: console.command.db.migrate
+        public: true
         tags:
             - { name: console.command }
 

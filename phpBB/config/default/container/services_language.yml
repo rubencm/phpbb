@@ -1,4 +1,6 @@
 services:
+    _defaults: { public: true }
+
     language.helper.language_file:
         class: phpbb\language\language_file_helper
         arguments:
@@ -18,5 +20,6 @@ services:
 
     language.loader:
         parent: language.loader_abstract
+        public: true
         calls:
             - [set_extension_manager, ['@ext.manager']]

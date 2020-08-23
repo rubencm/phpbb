@@ -1,4 +1,6 @@
 services:
+    _defaults: { public: true }
+
     installer.install_database.create_schema_file:
         class: phpbb\install\module\install_database\task\create_schema_file
         arguments:
@@ -65,6 +67,7 @@ services:
     installer.module.database_install:
         class: phpbb\install\module\install_database\module
         parent: installer.module_base
+        public: true
         arguments:
             - '@installer.module.install_database_collection'
         tags:

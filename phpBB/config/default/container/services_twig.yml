@@ -2,6 +2,8 @@ parameters:
     core.template.cache_path: '%core.cache_dir%twig/'
 
 services:
+    _defaults: { public: true }
+
     template.twig.environment:
         class: phpbb\template\twig\environment
         arguments:
@@ -29,7 +31,8 @@ services:
     template.twig.extensions.collection:
         class: phpbb\di\service_collection
         arguments:
-            - !tagged_iterator twig.extension
+#            - !tagged_iterator twig.extension
+            - '@service_container'
         tags:
             - { name: service_collection, tag: twig.extension }
 

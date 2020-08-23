@@ -1,4 +1,6 @@
 services:
+    _defaults: { public: true }
+
     installer.update_database.update_task:
         class: phpbb\install\module\update_database\task\update
         arguments:
@@ -32,6 +34,7 @@ services:
     installer.module.update_database:
         class: phpbb\install\module\update_database\module
         parent: installer.module_base
+        public: true
         arguments:
             - '@installer.module.update_database_collection'
             - true

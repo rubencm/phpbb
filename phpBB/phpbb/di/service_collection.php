@@ -40,6 +40,7 @@ class service_collection extends \ArrayObject
 	{
 		$this->container = $container;
 		$this->service_classes = array();
+		// https://symfony.com/doc/4.4/service_container/tags.html#reference-tagged-services
 	}
 
 	/**

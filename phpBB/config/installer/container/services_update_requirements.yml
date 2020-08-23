@@ -1,4 +1,6 @@
 services:
+    _defaults: { public: true }
+
     installer.requirements.check_filesystem_update:
         class: phpbb\install\module\requirements\task\check_filesystem
         arguments:
@@ -33,6 +35,7 @@ services:
     installer.module.requirements_update:
         class: phpbb\install\module\requirements\update_module
         parent: installer.module_base
+        public: true
         arguments:
             - '@installer.module.update_requirements_collection'
             - true
