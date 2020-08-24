@@ -5,8 +5,9 @@ parameters:
     tables.acl_roles: '%core.table_prefix%acl_roles'
 
 services:
+    _defaults: { public: true }
+
     config.php:
-        public: true
         synthetic: true
 
     dbal.conn:
@@ -22,11 +23,9 @@ services:
 
     ext.manager:
         class: phpbb\extension\manager_mock
-        public: true
 
     config:
         class: phpbb\config\config
-        public: true
         arguments:
             - []
 

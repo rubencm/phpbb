@@ -71,7 +71,6 @@ services:
 
     template:
         class: phpbb\template\twig\twig
-        public: true
         arguments:
             - '@path_helper'
             - '@config'

@@ -14,7 +14,6 @@
 namespace phpbb\di;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Traversable;
 
 /**
 * Collection of services to be configured at container compile time.
@@ -32,15 +31,14 @@ class service_collection extends \ArrayObject
 	protected $service_classes;
 
 	/**
-	* Constructor
-	*
-	* @param \IteratorAggregate $service_classes Service collection classes
-	*/
+	 * Constructor
+	 *
+	 * @param ContainerInterface $container
+	 */
 	public function __construct(ContainerInterface $container)
 	{
 		$this->container = $container;
 		$this->service_classes = array();
-		// https://symfony.com/doc/4.4/service_container/tags.html#reference-tagged-services
 	}
 
 	/**

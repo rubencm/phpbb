@@ -200,11 +200,6 @@ class phpbb_mock_container_builder implements ContainerInterface
 		return false;
 	}
 
-	public function isFrozen()
-	{
-		return false;
-	}
-
 	public function initialized($id)
 	{
 		return true;
