@@ -22,33 +22,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class admin
 {
-	/**
-	 * @var form
-	 */
+	/** @var form */
 	protected $form;
 
-	/**
-	 * @var helper
-	 */
+	/** @var helper */
 	protected $helper;
 
-	/**
-	 * @var language
-	 */
+	/** @var language */
 	protected $language;
 
-	/**
-	 * @var request_interface
-	 */
+	/** @var request_interface */
 	protected $request;
 
-	/**
-	 * @var template
-	 */
+	/** @var template */
 	protected $template;
 
 	/**
 	 * admin constructor.
+	 *
 	 * @param form $form
 	 * @param helper $helper
 	 * @param language $language
@@ -107,7 +98,7 @@ class admin
 
 		$this->form->render($this->template);
 
-		// Breadcrums
+		// Breadcrumbs
 		$this->template->assign_block_vars('navlinks', array(
 			'BREADCRUMB_NAME'	=> $this->language->lang('CONTACT_ADMIN'),
 			'U_BREADCRUMB'		=> $this->helper->route('phpbb_message_admin'),
@@ -116,5 +107,4 @@ class admin
 		// Render
 		return $this->helper->render($this->form->get_template_file(), $this->form->get_page_title());
 	}
-
 }

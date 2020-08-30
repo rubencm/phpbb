@@ -26,6 +26,7 @@ phpbb_help_routing:
 
 phpbb_message_routing:
     resource: message.yml
+    prefix: /message
 
 phpbb_report_routing:
     resource: report.yml

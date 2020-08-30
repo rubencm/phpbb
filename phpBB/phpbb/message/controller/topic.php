@@ -23,38 +23,27 @@ use Symfony\Component\HttpFoundation\Response;
 
 class topic
 {
-	/**
-	 * @var driver_interface
-	 */
+	/** @var driver_interface */
 	protected $db;
 
-	/**
-	 * @var form
-	 */
+	/** @var form */
 	protected $form;
 
-	/**
-	 * @var helper
-	 */
+	/** @var helper */
 	protected $helper;
 
-	/**
-	 * @var language
-	 */
+	/** @var language */
 	protected $language;
 
-	/**
-	 * @var request_interface
-	 */
+	/** @var request_interface */
 	protected $request;
 
-	/**
-	 * @var template
-	 */
+	/** @var template */
 	protected $template;
 
 	/**
 	 * topic constructor.
+	 *
 	 * @param driver_interface $db
 	 * @param form $form
 	 * @param helper $helper
@@ -115,7 +104,7 @@ class topic
 
 		$this->form->render($this->template);
 
-		// Breadcrums
+		// Breadcrumbs
 		$sql = 'SELECT f.parent_id, f.forum_parents, f.left_id, f.right_id, f.forum_type, f.forum_name, f.forum_id, f.forum_desc, f.forum_desc_uid, f.forum_desc_bitfield, f.forum_desc_options, f.forum_options, t.topic_title
 				FROM ' . FORUMS_TABLE . ' as f,
 					' . TOPICS_TABLE . ' as t
@@ -138,5 +127,4 @@ class topic
 		// Render
 		return $this->helper->render($this->form->get_template_file(), $this->form->get_page_title());
 	}
-
 }

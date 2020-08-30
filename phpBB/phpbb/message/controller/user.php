@@ -22,33 +22,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class user
 {
-	/**
-	 * @var form
-	 */
+	/** @var form */
 	protected $form;
 
-	/**
-	 * @var helper
-	 */
+	/** @var helper */
 	protected $helper;
 
-	/**
-	 * @var language
-	 */
+	/** @var language */
 	protected $language;
 
-	/**
-	 * @var request_interface
-	 */
+	/** @var request_interface */
 	protected $request;
 
-	/**
-	 * @var template
-	 */
+	/** @var template */
 	protected $template;
 
 	/**
 	 * user constructor.
+	 *
 	 * @param form $form
 	 * @param helper $helper
 	 * @param language $language
@@ -102,7 +93,7 @@ class user
 
 		$this->form->render($this->template);
 
-		// Breadcrums
+		// Breadcrumbs
 		$this->template->assign_block_vars('navlinks', array(
 			'BREADCRUMB_NAME'	=> $this->language->lang('SEND_EMAIL'),
 			'U_BREADCRUMB'		=> $this->helper->route('phpbb_message_user', ['user_id' => $user_id]),
@@ -111,5 +102,4 @@ class user
 		// Render
 		return $this->helper->render($this->form->get_template_file(), $this->form->get_page_title());
 	}
-
 }
