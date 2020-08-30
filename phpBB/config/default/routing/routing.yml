@@ -26,6 +26,7 @@ phpbb_help_routing:
 
 phpbb_members_routing:
     resource: members.yml
+    prefix: /members
 
 phpbb_report_routing:
     resource: report.yml

@@ -31,80 +31,50 @@ use Symfony\Component\HttpFoundation\Response;
 
 class online
 {
-	/**
-	 * @var auth
-	 */
+	/** @var auth */
 	protected $auth;
 
-	/**
-	 * @var config
-	 */
+	/** @var config */
 	protected $config;
 
-	/**
-	 * @var driver_interface
-	 */
+	/** @var driver_interface */
 	protected $db;
 
-	/**
-	 * @var dispatcher
-	 */
+	/** @var dispatcher */
 	protected $dispatcher;
 
-	/**
-	 * @var group_helper
-	 */
+	/** @var group_helper */
 	protected $group_helper;
 
-	/**
-	 * @var viewonline_helper
-	 */
+	/** @var viewonline_helper */
 	protected $viewonline_helper;
 
-	/**
-	 * @var helper
-	 */
+	/** @var helper */
 	protected $helper;
 
-	/**
-	 * @var language
-	 */
+	/** @var language */
 	protected $language;
 
-	/**
-	 * @var pagination
-	 */
+	/** @var pagination */
 	protected $pagination;
 
-	/**
-	 * @var request
-	 */
+	/** @var request */
 	protected $request;
 
-	/**
-	 * @var router
-	 */
+	/** @var router */
 	protected $router;
 
-	/**
-	 * @var template
-	 */
+	/** @var template */
 	protected $template;
 
-	/**
-	 * @var user
-	 */
+	/** @var user */
 	protected $user;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $phpbb_root_path;
 
-	/**
-	 * @var string
-	 */
-	protected $phpEx;
+	/** @var string */
+	protected $php_ex;
 
 	/**
 	 * online constructor.
@@ -122,9 +92,9 @@ class online
 	 * @param template $template
 	 * @param user $user
 	 * @param string $phpbb_root_path
-	 * @param string $phpEx
+	 * @param string $php_ex
 	 */
-	public function __construct(auth $auth, config $config, driver_interface $db, dispatcher $dispatcher, group_helper $group_helper, viewonline_helper $viewonline_helper, helper $helper, language $language, pagination $pagination, request $request, router $router, template $template, user $user, string $phpbb_root_path, string $phpEx)
+	public function __construct(auth $auth, config $config, driver_interface $db, dispatcher $dispatcher, group_helper $group_helper, viewonline_helper $viewonline_helper, helper $helper, language $language, pagination $pagination, request $request, router $router, template $template, user $user, string $phpbb_root_path, string $php_ex)
 	{
 		$this->auth					= $auth;
 		$this->config				= $config;
@@ -140,7 +110,7 @@ class online
 		$this->template				= $template;
 		$this->user					= $user;
 		$this->phpbb_root_path		= $phpbb_root_path;
-		$this->phpEx				= $phpEx;
+		$this->php_ex				= $php_ex;
 	}
 
 	/**
@@ -153,7 +123,7 @@ class online
 		// Display a listing of board admins, moderators
 		if (!function_exists('display_user_activity'))
 		{
-			include($this->phpbb_root_path . 'includes/functions_display.' . $this->phpEx);
+			include($this->phpbb_root_path . 'includes/functions_display.' . $this->php_ex);
 		}
 
 		// Load language strings
@@ -309,7 +279,7 @@ class online
 				'USER_BROWSER'		=> ($this->auth->acl_get('a_user')) ? $row['session_browser'] : '',
 
 				'U_USER_PROFILE'	=> ($row['user_type'] != USER_IGNORE) ? get_username_string('profile', $row['user_id'], '') : '',
-				'U_USER_IP'			=> append_sid($this->phpbb_root_path . "viewonline." . $this->phpEx, 'mode=lookup' . (($mode != 'lookup' || $row['session_id'] != $session_id) ? '&amp;s=' . $row['session_id'] : '') . "&amp;sg=$show_guests&amp;start=$start&amp;sk=$sort_key&amp;sd=$sort_dir"),
+				'U_USER_IP'			=> append_sid($this->phpbb_root_path . "viewonline." . $this->php_ex, 'mode=lookup' . (($mode != 'lookup' || $row['session_id'] != $session_id) ? '&amp;s=' . $row['session_id'] : '') . "&amp;sg=$show_guests&amp;start=$start&amp;sk=$sort_key&amp;sd=$sort_dir"),
 				'U_WHOIS'			=> $this->helper->route('phpbb_members_online_whois', ['session_id' => $row['session_id']]),
 				'U_FORUM_LOCATION'	=> $location_url,
 
@@ -364,13 +334,20 @@ class online
 			'U_BREADCRUMB'		=> $this->helper->route('phpbb_members_online'),
 		]);
 
-		make_jumpbox(append_sid($this->phpbb_root_path . "viewforum." . $this->phpEx));
+		make_jumpbox(append_sid($this->phpbb_root_path . "viewforum." . $this->php_ex));
 
 		// Render
 		return $this->helper->render('viewonline_body.html', $this->language->lang('WHO_IS_ONLINE'));
 	}
 
 	/**
+	 * Given a certain page, it returns the title of the page and a link to it.
+	 * There are 2 strategies to detect the page the user is in:
+	 *  - Try to get the controller route from the router service
+	 *  - And second, if is not possible to get the controller route, the
+	 * page is analyzed by path, analyzing the file that is accessed. This
+	 * is mostly for legacy pages, and should be removed in the future.
+	 *
 	 * @param $session_page
 	 * @param $forum_id
 	 * @return array
@@ -382,6 +359,7 @@ class online
 
 		try
 		{
+			// TODO: Check if this two lines should be moved to the router
 			$session_page = parse_url($session_page,  PHP_URL_PATH); // Remove query string
 			$session_page = '/' . ((substr($session_page, 0, 8) == 'app.php/') ? substr($session_page, 8) : $session_page); // Remove app.php/
 
@@ -403,32 +381,32 @@ class online
 				case 'phpbb_report_pm_controller':
 				case 'phpbb_report_post_controller':
 					$location = $this->language->lang('REPORTING_POST');
-					$location_url = append_sid($this->phpbb_root_path . "index." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "index." . $this->php_ex);
 				break;
 
 				case 'phpbb_message_admin':
 				// https://github.com/phpbb/phpbb/pull/5391/files
-				// The current behavior is show users in contact admin, but they will be diferent controllers
+				// The current behavior is show users in contact admin, but they will be different controllers
 				//case 'phpbb_message_topic':
 				//case 'phpbb_message_user':
 					$location = $this->language->lang('VIEWING_CONTACT_ADMIN');
-					$location_url = append_sid($this->phpbb_root_path . "memberlist." . $this->phpEx, 'mode=contactadmin');
+					$location_url = append_sid($this->phpbb_root_path . "memberlist." . $this->php_ex, 'mode=contactadmin');
 				break;
 
 				case 'phpbb_members_profile':
-					$location_url = append_sid($this->phpbb_root_path . "memberlist." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "memberlist." . $this->php_ex);
 					$location = $this->language->lang('VIEWING_MEMBER_PROFILE');
 				break;
 
 				case 'phpbb_members_team':
-					$location_url = append_sid($this->phpbb_root_path . "memberlist." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "memberlist." . $this->php_ex);
 					$location = $this->language->lang('VIEWING_MEMBERS');
 				break;
 
 				default:
 					// Is a route, but not in the switch
 					$location = $this->language->lang('INDEX');
-					$location_url = append_sid($this->phpbb_root_path . "index." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "index." . $this->php_ex);
 			}
 		}
 		catch (\RuntimeException $e) // Urls without route
@@ -439,12 +417,12 @@ class online
 			{
 				case 'index':
 					$location = $this->language->lang('INDEX');
-					$location_url = append_sid($this->phpbb_root_path . "index." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "index." . $this->php_ex);
 				break;
 
 				case $phpbb_adm_relative_path . 'index':
 					$location = $this->language->lang('ACP');
-					$location_url = append_sid($this->phpbb_root_path . "index." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "index." . $this->php_ex);
 				break;
 
 				case 'posting':
@@ -456,7 +434,7 @@ class online
 					if ($forum_id && $this->auth->acl_get('f_list', $forum_id))
 					{
 						$location = '';
-						$location_url = append_sid($this->phpbb_root_path . "viewforum." . $this->phpEx, 'f=' . $forum_id);
+						$location_url = append_sid($this->phpbb_root_path . "viewforum." . $this->php_ex, 'f=' . $forum_id);
 
 						if ($forum_data[$forum_id]['forum_type'] == FORUM_LINK)
 						{
@@ -495,23 +473,23 @@ class online
 					else
 					{
 						$location = $this->language->lang('INDEX');
-						$location_url = append_sid($this->phpbb_root_path . "index." . $this->phpEx);
+						$location_url = append_sid($this->phpbb_root_path . "index." . $this->php_ex);
 					}
 				break;
 
 				case 'search':
 					$location = $this->language->lang('SEARCHING_FORUMS');
-					$location_url = append_sid($this->phpbb_root_path . "search." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "search." . $this->php_ex);
 				break;
 
 				case 'memberlist':
-					$location_url = append_sid($this->phpbb_root_path . "memberlist." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "memberlist." . $this->php_ex);
 					$location = $this->language->lang('VIEWING_MEMBERS');
 				break;
 
 				case 'mcp':
 					$location = $this->language->lang('VIEWING_MCP');
-					$location_url = append_sid($this->phpbb_root_path . "index." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "index." . $this->php_ex);
 				break;
 
 				case 'ucp':
@@ -535,12 +513,12 @@ class online
 						}
 					}
 
-					$location_url = append_sid($this->phpbb_root_path . "index." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "index." . $this->php_ex);
 				break;
 
 				default:
 					$location = $this->language->lang('INDEX');
-					$location_url = append_sid($this->phpbb_root_path . "index." . $this->phpEx);
+					$location_url = append_sid($this->phpbb_root_path . "index." . $this->php_ex);
 				break;
 			}
 		}
@@ -548,6 +526,11 @@ class online
 		return [$location, $location_url];
 	}
 
+	/**
+	 * Get number of guests online
+	 *
+	 * @return int
+	 */
 	protected function get_number_guests()
 	{
 		switch ($this->db->get_sql_layer())
@@ -576,8 +559,20 @@ class online
 		return $guest_counter;
 	}
 
+	/**
+	 * Get forum data
+	 *
+	 * @return array
+	 */
 	protected function get_forum_data()
 	{
+		static $forum_data;
+
+		if (isset($forum_data))
+		{
+			return $forum_data;
+		}
+
 		// Forum info
 		$sql_ary = [
 			'SELECT'	=> 'f.forum_id, f.forum_name, f.parent_id, f.forum_type, f.left_id, f.right_id',
@@ -610,6 +605,11 @@ class online
 		return $forum_data;
 	}
 
+	/**
+	 * Assign group legend variables to template
+	 *
+	 * return void
+	 */
 	protected function assign_legend_template_data()
 	{
 		$order_legend = $this->config['legend_sort_groupname'] ? 'group_name' : 'group_legend';
@@ -646,10 +646,9 @@ class online
 				'GROUP_COLOUR' => $row['group_colour'],
 				'GROUP_TYPE' => $row['group_type'],
 				'GROUP_LEGEND' => $row['group_legend'],
-				'U_GROUP' => append_sid($this->phpbb_root_path . "memberlist." . $this->phpEx, 'mode=group&amp;g=' . $row['group_id'])
+				'U_GROUP' => append_sid($this->phpbb_root_path . "memberlist." . $this->php_ex, 'mode=group&amp;g=' . $row['group_id'])
 			]);
 		}
 		$this->db->sql_freeresult($result);
-
 	}
 }

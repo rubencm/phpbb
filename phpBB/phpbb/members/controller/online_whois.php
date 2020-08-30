@@ -62,7 +62,7 @@ class online_whois
 	/**
 	 * @var string
 	 */
-	private $phpEx;
+	private $php_ex;
 
 	/**
 	 * online_whois constructor.
@@ -73,9 +73,9 @@ class online_whois
 	 * @param template $template
 	 * @param user $user
 	 * @param string $phpbb_root_path
-	 * @param string $phpEx
+	 * @param string $php_ex
 	 */
-	public function __construct(auth $auth, driver_interface $db, helper $helper, language $language, template $template, user $user, string $phpbb_root_path, string $phpEx)
+	public function __construct(auth $auth, driver_interface $db, helper $helper, language $language, template $template, user $user, string $phpbb_root_path, string $php_ex)
 	{
 		$this->auth				= $auth;
 		$this->db				= $db;
@@ -84,7 +84,7 @@ class online_whois
 		$this->template			= $template;
 		$this->user				= $user;
 		$this->phpbb_root_path	= $phpbb_root_path;
-		$this->phpEx			= $phpEx;
+		$this->php_ex			= $php_ex;
 	}
 
 	/**
@@ -97,7 +97,7 @@ class online_whois
 	{
 		if (!function_exists('user_ipwhois'))
 		{
-			include($this->phpbb_root_path . 'includes/functions_user.' . $this->phpEx);
+			include($this->phpbb_root_path . 'includes/functions_user.' . $this->php_ex);
 		}
 
 		// Load language strings

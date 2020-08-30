@@ -49,7 +49,7 @@
 
 {% if legend %}
 	<p>
-		<em>{{ lang('LEGEND') }}{{ lang('COLON') }}</em>
+		<em>{{ lang('LEGEND') ~ lang('COLON') }}</em>
 		{% for row in legend %}
 			{%- if row.GROUP_NAME == 'BOTS' %}
 				<span style="color: #{{ row.GROUP_COLOUR }}">{{ lang('G_BOTS') }}</span>

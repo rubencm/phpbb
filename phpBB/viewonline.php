@@ -26,12 +26,12 @@ $user->session_begin();
 $auth->acl($user->data);
 
 // Get and set some variables
-$mode		= $request->variable('mode', '');
-$session_id	= $request->variable('s', '');
-$start		= $request->variable('start', 0);
-$sort_key	= $request->variable('sk', 'b');
-$sort_dir	= $request->variable('sd', 'd');
-$show_guests	= ($config['load_online_guests']) ? $request->variable('sg', 0) : 0;
+$mode		= $request->variable('mode', null);
+$session_id	= $request->variable('s', null);
+$start		= $request->variable('start', null);
+$sort_key	= $request->variable('sk', null);
+$sort_dir	= $request->variable('sd', null);
+$show_guests	= ($config['load_online_guests']) ? $request->variable('sg', null) : null;
 
 /** @var \phpbb\controller\helper $controller_helper */
 $controller_helper = $phpbb_container->get('controller.helper');
@@ -44,19 +44,19 @@ if ($mode == 'whois')
 		), false),
 		301
 	);
-	$response->send();
 }
-
-
-$response = new RedirectResponse(
-	$controller_helper->route('phpbb_members_online', array(
-		'mode'	=> $mode,
-		's'		=> $session_id,
-		'start'	=> $start,
-		'sk'	=> $sort_key,
-		'sd'	=> $sort_dir,
-		'sg'	=> $show_guests,
-	), false),
-	301
-);
+else
+{
+	$response = new RedirectResponse(
+		$controller_helper->route('phpbb_members_online', array(
+			'mode' => $mode,
+			's' => $session_id,
+			'start' => $start,
+			'sk' => $sort_key,
+			'sd' => $sort_dir,
+			'sg' => $show_guests,
+		), false),
+		301
+	);
+}
 $response->send();
