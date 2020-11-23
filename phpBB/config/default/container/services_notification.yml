@@ -200,6 +200,7 @@ services:
         class: phpbb\notification\type\forum
         shared: false
         parent: notification.type.post
+        public: true
         calls:
             - [set_user_loader, ['@user_loader']]
             - [set_config, ['@config']]
