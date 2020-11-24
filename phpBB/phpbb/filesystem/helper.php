@@ -173,11 +173,11 @@ class helper
 	 * Try to resolve realpath when PHP's realpath is not available, or
 	 * known to be buggy.
 	 *
-	 * @param string	$path	Path to resolve
+	 * @param ?string	$path	Path to resolve
 	 *
 	 * @return string	Resolved path
 	 */
-	public static function realpath($path)
+	public static function realpath($path = null)
 	{
 		if (!function_exists('realpath'))
 		{
