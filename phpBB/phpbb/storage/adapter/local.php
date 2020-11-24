@@ -231,7 +231,7 @@ class local implements adapter_interface, stream_interface
 	protected function ensure_directory_exists($path)
 	{
 		$path = dirname($this->root_path . $this->get_path($path) . $this->get_filename($path));
-		$path = filesystem_helper::make_path_relative($path, $this->root_path);
+		$path = filesystem_helper::make_path_relative(filesystem_helper::realpath($path), filesystem_helper::realpath($this->root_path));
 
 		if (!$this->exists($path))
 		{
@@ -250,7 +250,7 @@ class local implements adapter_interface, stream_interface
 		{
 			$dirpath = dirname($this->root_path . $path);
 			$filepath = dirname($this->root_path . $this->get_path($path) . $this->get_filename($path));
-			$path = filesystem_helper::make_path_relative($filepath, $dirpath);
+			$path = filesystem_helper::make_path_relative(filesystem_helper::realpath($filepath), filesystem_helper::realpath($dirpath));
 
 			do
 			{
