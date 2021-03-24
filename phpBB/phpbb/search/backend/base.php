@@ -392,7 +392,9 @@ abstract class base implements search_backend_interface
 
 		$starttime = microtime(true);
 		$row_count = 0;
-		while (still_on_time() && $post_counter <= $max_post_id)
+
+		$still_on_time = PHP_SAPI === 'cli' ? true : still_on_time();
+		while ($still_on_time && $post_counter <= $max_post_id)
 		{
 			$rows = $this->get_posts_between($post_counter + 1, $post_counter + self::BATCH_SIZE);
 			$ids = $posters = $forum_ids = array();
@@ -417,11 +419,6 @@ abstract class base implements search_backend_interface
 				break;
 			}
 		}
-
-		// TODO: With cli if the previous bucle have stoped because of lack of time, launch an exception, because is an error
-		// cli commands should be executed in one step
-
-		// TODO: Check if this can be decoupled from cli & not cli
 
 		if ($post_counter <= $max_post_id)
 		{
