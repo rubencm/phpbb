@@ -1,15 +1,15 @@
 <?php
 /**
-*
-* This file is part of the phpBB Forum Software package.
-*
-* @copyright (c) phpBB Limited <https://www.phpbb.com>
-* @license GNU General Public License, version 2 (GPL-2.0)
-*
-* For full copyright and license information, please see
-* the docs/CREDITS.txt file.
-*
-*/
+ *
+ * This file is part of the phpBB Forum Software package.
+ *
+ * @copyright (c) phpBB Limited <https://www.phpbb.com>
+ * @license GNU General Public License, version 2 (GPL-2.0)
+ *
+ * For full copyright and license information, please see
+ * the docs/CREDITS.txt file.
+ *
+ */
 
 namespace phpbb\search\backend;
 
@@ -19,9 +19,9 @@ use phpbb\db\driver\driver_interface;
 use phpbb\user;
 
 /**
-* optional base class for search plugins providing simple caching based on ACM
-* and functions to retrieve ignore_words and synonyms
-*/
+ * optional base class for search plugins providing simple caching based on ACM
+ * and functions to retrieve ignore_words and synonyms
+ */
 abstract class base implements search_backend_interface
 {
 	public const SEARCH_RESULT_NOT_IN_CACHE = 0;
@@ -349,7 +349,16 @@ abstract class base implements search_backend_interface
 			}
 
 			$post_counter += self::BATCH_SIZE;
+
+			// With cli process only one batch each time to be able to track progress
+			if (PHP_SAPI === 'cli')
+			{
+				break;
+			}
 		}
+
+		// TODO: With cli if the previous bucle have stoped because of lack of time, launch an exception, because is an error
+		// cli commands should be executed in one step
 
 		// pretend the number of posts was as big as the number of ids we indexed so far
 		// just an estimation as it includes deleted posts
@@ -401,7 +410,18 @@ abstract class base implements search_backend_interface
 			}
 
 			$post_counter += self::BATCH_SIZE;
+
+			// With cli process only one batch each time to be able to track progress
+			if (PHP_SAPI === 'cli')
+			{
+				break;
+			}
 		}
+
+		// TODO: With cli if the previous bucle have stoped because of lack of time, launch an exception, because is an error
+		// cli commands should be executed in one step
+
+		// TODO: Check if this can be decoupled from cli & not cli
 
 		if ($post_counter <= $max_post_id)
 		{
