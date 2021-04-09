@@ -100,23 +100,39 @@ class fulltext_native extends base implements search_backend_interface
 	protected $language;
 
 	/**
+	 * @var string
+	 */
+	protected $search_wordlist_table;
+
+	/**
+	 * @var string
+	 */
+	protected $search_wordmatch_table;
+
+	/**
 	 * Initialises the fulltext_native search backend with min/max word length
 	 *
-	 * @param config $config Config object
-	 * @param driver_interface $db Database object
+	 * @param config               $config           Config object
+	 * @param driver_interface     $db               Database object
 	 * @param dispatcher_interface $phpbb_dispatcher Event dispatcher object
-	 * @param language $language
-	 * @param user $user User object
-	 * @param string $phpbb_root_path phpBB root path
-	 * @param string $phpEx PHP file extension
+	 * @param language             $language
+	 * @param user                 $user             User object
+	 * @param string               $search_results_table
+	 * @param string               $search_wordlist_table
+	 * @param string               $search_wordmatch_table
+	 * @param string               $phpbb_root_path  phpBB root path
+	 * @param string               $phpEx            PHP file extension
 	 */
-	public function __construct(config $config, driver_interface $db, dispatcher_interface $phpbb_dispatcher, language $language, user $user, string $phpbb_root_path, string $phpEx)
+	public function __construct(config $config, driver_interface $db, dispatcher_interface $phpbb_dispatcher, language $language, user $user, string $search_results_table, string $search_wordlist_table, string $search_wordmatch_table, string $phpbb_root_path, string $phpEx)
 	{
 		global $cache;
 
-		parent::__construct($cache, $config, $db, $user);
+		parent::__construct($cache, $config, $db, $user, $search_results_table);
 		$this->phpbb_dispatcher = $phpbb_dispatcher;
 		$this->language = $language;
+
+		$this->search_wordlist_table = $search_wordlist_table;
+		$this->search_wordmatch_table = $search_wordmatch_table;
 
 		$this->phpbb_root_path = $phpbb_root_path;
 		$this->php_ext = $phpEx;
@@ -326,7 +342,7 @@ class fulltext_native extends base implements search_backend_interface
 		if (count($exact_words))
 		{
 			$sql = 'SELECT word_id, word_text, word_common
-				FROM ' . SEARCH_WORDLIST_TABLE . '
+				FROM ' . $this->search_wordlist_table . '
 				WHERE ' . $this->db->sql_in_set('word_text', $exact_words) . '
 				ORDER BY word_count ASC';
 			$result = $this->db->sql_query($sql);
@@ -598,8 +614,8 @@ class fulltext_native extends base implements search_backend_interface
 		$sql_array = array(
 			'SELECT'	=> ($type == 'posts') ? 'p.post_id' : 'p.topic_id',
 			'FROM'		=> array(
-				SEARCH_WORDMATCH_TABLE	=> array(),
-				SEARCH_WORDLIST_TABLE	=> array(),
+				$this->search_wordmatch_table	=> array(),
+				$this->search_wordlist_table	=> array(),
 			),
 			'LEFT_JOIN' => array(array(
 				'FROM'	=> array(POSTS_TABLE => 'p'),
@@ -651,7 +667,7 @@ class fulltext_native extends base implements search_backend_interface
 					if (is_string($id))
 					{
 						$sql_array['LEFT_JOIN'][] = array(
-							'FROM'	=> array(SEARCH_WORDLIST_TABLE => 'w' . $w_num),
+							'FROM'	=> array($this->search_wordlist_table => 'w' . $w_num),
 							'ON'	=> "w$w_num.word_text LIKE $id"
 						);
 						$word_ids[] = "w$w_num.word_id";
@@ -671,7 +687,7 @@ class fulltext_native extends base implements search_backend_interface
 			}
 			else if (is_string($subquery))
 			{
-				$sql_array['FROM'][SEARCH_WORDLIST_TABLE][] = 'w' . $w_num;
+				$sql_array['FROM'][$this->search_wordlist_table][] = 'w' . $w_num;
 
 				$sql_where[] = "w$w_num.word_text LIKE $subquery";
 				$sql_where[] = "m$m_num.word_id = w$w_num.word_id";
@@ -684,7 +700,7 @@ class fulltext_native extends base implements search_backend_interface
 				$sql_where[] = "m$m_num.word_id = $subquery";
 			}
 
-			$sql_array['FROM'][SEARCH_WORDMATCH_TABLE][] = 'm' . $m_num;
+			$sql_array['FROM'][$this->search_wordmatch_table][] = 'm' . $m_num;
 
 			if ($title_match)
 			{
@@ -703,7 +719,7 @@ class fulltext_native extends base implements search_backend_interface
 			if (is_string($subquery))
 			{
 				$sql_array['LEFT_JOIN'][] = array(
-					'FROM'	=> array(SEARCH_WORDLIST_TABLE => 'w' . $w_num),
+					'FROM'	=> array($this->search_wordlist_table => 'w' . $w_num),
 					'ON'	=> "w$w_num.word_text LIKE $subquery"
 				);
 
@@ -717,7 +733,7 @@ class fulltext_native extends base implements search_backend_interface
 		if (count($this->must_not_contain_ids))
 		{
 			$sql_array['LEFT_JOIN'][] = array(
-				'FROM'	=> array(SEARCH_WORDMATCH_TABLE => 'm' . $m_num),
+				'FROM'	=> array($this->search_wordmatch_table => 'm' . $m_num),
 				'ON'	=> $this->db->sql_in_set("m$m_num.word_id", $this->must_not_contain_ids) . (($title_match) ? " AND m$m_num.$title_match" : '') . " AND m$m_num.post_id = m0.post_id"
 			);
 
@@ -733,7 +749,7 @@ class fulltext_native extends base implements search_backend_interface
 				if (is_string($id))
 				{
 					$sql_array['LEFT_JOIN'][] = array(
-						'FROM'	=> array(SEARCH_WORDLIST_TABLE => 'w' . $w_num),
+						'FROM'	=> array($this->search_wordlist_table => 'w' . $w_num),
 						'ON'	=> "w$w_num.word_text LIKE $id"
 					);
 					$id = "w$w_num.word_id";
@@ -743,7 +759,7 @@ class fulltext_native extends base implements search_backend_interface
 				}
 
 				$sql_array['LEFT_JOIN'][] = array(
-					'FROM'	=> array(SEARCH_WORDMATCH_TABLE => 'm' . $m_num),
+					'FROM'	=> array($this->search_wordmatch_table => 'm' . $m_num),
 					'ON'	=> "m$m_num.word_id = $id AND m$m_num.post_id = m0.post_id" . (($title_match) ? " AND m$m_num.$title_match" : '')
 				);
 				$is_null_joins[] = "m$m_num.word_id IS NULL";
@@ -1317,7 +1333,7 @@ class fulltext_native extends base implements search_backend_interface
 			$words['del']['title'] = array();
 
 			$sql = 'SELECT w.word_id, w.word_text, m.title_match
-				FROM ' . SEARCH_WORDLIST_TABLE . ' w, ' . SEARCH_WORDMATCH_TABLE . " m
+				FROM ' . $this->search_wordlist_table . ' w, ' . $this->search_wordmatch_table . " m
 				WHERE m.post_id = $post_id
 					AND w.word_id = m.word_id";
 			$result = $this->db->sql_query($sql);
@@ -1386,7 +1402,7 @@ class fulltext_native extends base implements search_backend_interface
 		if (count($unique_add_words))
 		{
 			$sql = 'SELECT word_id, word_text
-				FROM ' . SEARCH_WORDLIST_TABLE . '
+				FROM ' . $this->search_wordlist_table . '
 				WHERE ' . $this->db->sql_in_set('word_text', $unique_add_words);
 			$result = $this->db->sql_query($sql);
 
@@ -1408,7 +1424,7 @@ class fulltext_native extends base implements search_backend_interface
 					$sql_ary[] = array('word_text' => (string) $word, 'word_count' => 0);
 				}
 				$this->db->sql_return_on_error(true);
-				$this->db->sql_multi_insert(SEARCH_WORDLIST_TABLE, $sql_ary);
+				$this->db->sql_multi_insert($this->search_wordlist_table, $sql_ary);
 				$this->db->sql_return_on_error(false);
 			}
 			unset($new_words, $sql_ary);
@@ -1431,13 +1447,13 @@ class fulltext_native extends base implements search_backend_interface
 					$sql_in[] = $cur_words[$word_in][$word];
 				}
 
-				$sql = 'DELETE FROM ' . SEARCH_WORDMATCH_TABLE . '
+				$sql = 'DELETE FROM ' . $this->search_wordmatch_table . '
 					WHERE ' . $this->db->sql_in_set('word_id', $sql_in) . '
 						AND post_id = ' . intval($post_id) . "
 						AND title_match = $title_match";
 				$this->db->sql_query($sql);
 
-				$sql = 'UPDATE ' . SEARCH_WORDLIST_TABLE . '
+				$sql = 'UPDATE ' . $this->search_wordlist_table . '
 					SET word_count = word_count - 1
 					WHERE ' . $this->db->sql_in_set('word_id', $sql_in) . '
 						AND word_count > 0';
@@ -1454,13 +1470,13 @@ class fulltext_native extends base implements search_backend_interface
 
 			if (count($word_ary))
 			{
-				$sql = 'INSERT INTO ' . SEARCH_WORDMATCH_TABLE . ' (post_id, word_id, title_match)
+				$sql = 'INSERT INTO ' . $this->search_wordmatch_table . ' (post_id, word_id, title_match)
 					SELECT ' . (int) $post_id . ', word_id, ' . (int) $title_match . '
-					FROM ' . SEARCH_WORDLIST_TABLE . '
+					FROM ' . $this->search_wordlist_table . '
 					WHERE ' . $this->db->sql_in_set('word_text', $word_ary);
 				$this->db->sql_query($sql);
 
-				$sql = 'UPDATE ' . SEARCH_WORDLIST_TABLE . '
+				$sql = 'UPDATE ' . $this->search_wordlist_table . '
 					SET word_count = word_count + 1
 					WHERE ' . $this->db->sql_in_set('word_text', $word_ary);
 				$this->db->sql_query($sql);
@@ -1486,7 +1502,7 @@ class fulltext_native extends base implements search_backend_interface
 		if (count($post_ids))
 		{
 			$sql = 'SELECT w.word_id, w.word_text, m.title_match
-				FROM ' . SEARCH_WORDMATCH_TABLE . ' m, ' . SEARCH_WORDLIST_TABLE . ' w
+				FROM ' . $this->search_wordmatch_table . ' m, ' . $this->search_wordlist_table . ' w
 				WHERE ' . $this->db->sql_in_set('m.post_id', $post_ids) . '
 					AND w.word_id = m.word_id';
 			$result = $this->db->sql_query($sql);
@@ -1508,7 +1524,7 @@ class fulltext_native extends base implements search_backend_interface
 
 			if (count($title_word_ids))
 			{
-				$sql = 'UPDATE ' . SEARCH_WORDLIST_TABLE . '
+				$sql = 'UPDATE ' . $this->search_wordlist_table . '
 					SET word_count = word_count - 1
 					WHERE ' . $this->db->sql_in_set('word_id', $title_word_ids) . '
 						AND word_count > 0';
@@ -1517,7 +1533,7 @@ class fulltext_native extends base implements search_backend_interface
 
 			if (count($message_word_ids))
 			{
-				$sql = 'UPDATE ' . SEARCH_WORDLIST_TABLE . '
+				$sql = 'UPDATE ' . $this->search_wordlist_table . '
 					SET word_count = word_count - 1
 					WHERE ' . $this->db->sql_in_set('word_id', $message_word_ids) . '
 						AND word_count > 0';
@@ -1527,7 +1543,7 @@ class fulltext_native extends base implements search_backend_interface
 			unset($title_word_ids);
 			unset($message_word_ids);
 
-			$sql = 'DELETE FROM ' . SEARCH_WORDMATCH_TABLE . '
+			$sql = 'DELETE FROM ' . $this->search_wordmatch_table . '
 				WHERE ' . $this->db->sql_in_set('post_id', $post_ids);
 			$this->db->sql_query($sql);
 		}
@@ -1556,7 +1572,7 @@ class fulltext_native extends base implements search_backend_interface
 			$common_threshold = ((double) $this->config['fulltext_native_common_thres']) / 100.0;
 			// First, get the IDs of common words
 			$sql = 'SELECT word_id, word_text
-				FROM ' . SEARCH_WORDLIST_TABLE . '
+				FROM ' . $this->search_wordlist_table . '
 				WHERE word_count > ' . floor($this->config['num_posts'] * $common_threshold) . '
 					OR word_common = 1';
 			$result = $this->db->sql_query($sql);
@@ -1572,7 +1588,7 @@ class fulltext_native extends base implements search_backend_interface
 			if (count($sql_in))
 			{
 				// Flag the words
-				$sql = 'UPDATE ' . SEARCH_WORDLIST_TABLE . '
+				$sql = 'UPDATE ' . $this->search_wordlist_table . '
 					SET word_common = 1
 					WHERE ' . $this->db->sql_in_set('word_id', $sql_in);
 				$this->db->sql_query($sql);
@@ -1582,7 +1598,7 @@ class fulltext_native extends base implements search_backend_interface
 				$this->config->set('search_last_gc', time(), false);
 
 				// Delete the matches
-				$sql = 'DELETE FROM ' . SEARCH_WORDMATCH_TABLE . '
+				$sql = 'DELETE FROM ' . $this->search_wordmatch_table . '
 					WHERE ' . $this->db->sql_in_set('word_id', $sql_in);
 				$this->db->sql_query($sql);
 			}
@@ -1615,15 +1631,15 @@ class fulltext_native extends base implements search_backend_interface
 		switch ($this->db->get_sql_layer())
 		{
 			case 'sqlite3':
-				$sql_queries[] = 'DELETE FROM ' . SEARCH_WORDLIST_TABLE;
-				$sql_queries[] = 'DELETE FROM ' . SEARCH_WORDMATCH_TABLE;
-				$sql_queries[] = 'DELETE FROM ' . SEARCH_RESULTS_TABLE;
+				$sql_queries[] = 'DELETE FROM ' . $this->search_wordlist_table;
+				$sql_queries[] = 'DELETE FROM ' . $this->search_wordmatch_table;
+				$sql_queries[] = 'DELETE FROM ' . $this->search_results_table;
 			break;
 
 			default:
-				$sql_queries[] = 'TRUNCATE TABLE ' . SEARCH_WORDLIST_TABLE;
-				$sql_queries[] = 'TRUNCATE TABLE ' . SEARCH_WORDMATCH_TABLE;
-				$sql_queries[] = 'TRUNCATE TABLE ' . SEARCH_RESULTS_TABLE;
+				$sql_queries[] = 'TRUNCATE TABLE ' . $this->search_wordlist_table;
+				$sql_queries[] = 'TRUNCATE TABLE ' . $this->search_wordmatch_table;
+				$sql_queries[] = 'TRUNCATE TABLE ' . $this->search_results_table;
 			break;
 		}
 
@@ -1684,8 +1700,8 @@ class fulltext_native extends base implements search_backend_interface
 	 */
 	protected function get_stats()
 	{
-		$this->stats['total_words']		= $this->db->get_estimated_row_count(SEARCH_WORDLIST_TABLE);
-		$this->stats['total_matches']	= $this->db->get_estimated_row_count(SEARCH_WORDMATCH_TABLE);
+		$this->stats['total_words']		= $this->db->get_estimated_row_count($this->search_wordlist_table);
+		$this->stats['total_matches']	= $this->db->get_estimated_row_count($this->search_wordmatch_table);
 	}
 
 	/**
