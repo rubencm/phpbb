@@ -1,0 +1,129 @@
+<?php
+/**
+ *
+ * This file is part of the phpBB Forum Software package.
+ *
+ * @copyright (c) phpBB Limited <https://www.phpbb.com>
+ * @license GNU General Public License, version 2 (GPL-2.0)
+ *
+ * For full copyright and license information, please see
+ * the docs/CREDITS.txt file.
+ *
+ */
+
+namespace phpbb\storage\adapter;
+
+use phpbb\storage\stream_interface;
+use phpbb\storage\exception\exception;
+use phpbb\filesystem\exception\filesystem_exception;
+use phpbb\filesystem\filesystem;
+use phpbb\filesystem\helper as filesystem_helper;
+use phpbb\mimetype\guesser;
+use FastImageSize\FastImageSize;
+
+/**
+ * Experimental
+ */
+class local implements adapter_interface, stream_interface
+{
+	/**
+	 * Filesystem component
+	 *
+	 * @var filesystem
+	 */
+	protected $filesystem;
+
+	/**
+	 * FastImageSize
+	 *
+	 * @var FastImageSize
+	 */
+	protected $imagesize;
+
+	/**
+	 * Mimetype Guesser component
+	 *
+	 * @var guesser
+	 */
+	protected $mimetype_guesser;
+
+	/**
+	 * @var string path
+	 */
+	protected $phpbb_root_path;
+
+	/**
+	 * @var string path
+	 */
+	protected $root_path;
+
+	/**
+	 * @var string path
+	 */
+	protected $path;
+
+	/*
+	 * Subdirectories depth
+	 *
+	 * Instead of storing all folders in the same directory, they can be divided
+	 * into smaller directories. The variable describes the number of subdirectories
+	 * to be used for storing the files. For example:
+	 * depth = 0 -> /images/avatars/upload/my_avatar.jpg
+	 * depth = 2 -> /images/avatars/upload/d9/8c/my_avatar.jpg
+	 * This is for those who have problems storing a large number of files in
+	 * a single directory.
+	 * More info: https://tracker.phpbb.com/browse/PHPBB3-15371
+	 */
+
+	/*
+	 * @var bool subfolders
+	 */
+	protected $subfolders;
+
+	/*
+	 * @var int dir_depth
+	 */
+	protected $dir_depth = 2;
+
+	/**
+	 * Constructor
+	 *
+	 * @param filesystem $filesystem
+	 * @param FastImageSize $imagesize
+	 * @param guesser $mimetype_guesser
+	 * @param string $phpbb_root_path
+	 */
+	public function __construct(filesystem $filesystem, FastImageSize $imagesize, guesser $mimetype_guesser, string $phpbb_root_path)
+	{
+		$this->filesystem = $filesystem;
+		$this->imagesize = $imagesize;
+		$this->mimetype_guesser = $mimetype_guesser;
+		$this->phpbb_root_path = $phpbb_root_path;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function configure(array $options): void
+	{
+		if (substr($options['path'], -1, 1) !== DIRECTORY_SEPARATOR)
+		{
+			$options['path'] = $options['path'] . DIRECTORY_SEPARATOR;
+		}
+
+		$this->path = $options['path'];
+		$this->root_path = $this->phpbb_root_path . $options['path'];
+		$this->subfolders = (bool) $options['subfolders'];
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function put_contents(string $path, string $content): void
+	{
+		$this->ensure_directory_exists($path);
+
+		try
+		{
+			$this->filesystem->dump_file($this->root_path . $this->get_path($path) . $this->get_filename($path), $content);
+		}

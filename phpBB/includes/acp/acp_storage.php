@@ -32,6 +32,10 @@ if (!defined('IN_PHPBB'))
 
 class acp_storage
 {
+	public const STORAGE_UPDATE_TYPE_CONFIG = 0;
+	public const STORAGE_UPDATE_TYPE_COPY = 1;
+	public const STORAGE_UPDATE_TYPE_MOVE = 2;
+
 	/** @var config $config */
 	protected $config;
 
@@ -83,16 +87,6 @@ class acp_storage
 	/** @var string */
 	public $u_action;
 
-	/** @var mixed */
-	protected $state;
-
-	/**
-	 * Update type constants
-	 */
-	public const STORAGE_UPDATE_TYPE_CONFIG = 0;
-	public const STORAGE_UPDATE_TYPE_COPY = 1;
-	public const STORAGE_UPDATE_TYPE_MOVE = 2;
-
 	/**
 	 * @param string $id
 	 * @param string $mode
@@ -141,72 +135,119 @@ class acp_storage
 	 * @param string $id
 	 * @param string $mode
 	 */
-	public function settings(string $id, string $mode)
+	public function settings(string $id, string $mode): void
 	{
-		$form_key = 'acp_storage';
-		add_form_key($form_key);
-
-		// Template from adm/style
-		$this->tpl_name = 'acp_storage';
-
-		// Set page title
-		$this->page_title = 'STORAGE_TITLE';
-
 		$action = $this->request->variable('action', '');
-		$this->load_state();
 
-		// If user cancelled to continue, remove state
-		if ($this->request->is_set_post('cancel'))
+		if ($action && !$this->request->is_set_post('cancel'))
 		{
-			if (!check_form_key($form_key) || !check_link_hash($this->request->variable('hash', ''), 'acp_storage'))
+			switch ($action)
 			{
-				trigger_error($this->lang->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-			}
+				case 'progress_bar':
+					$this->display_progress_bar();
+				break;
 
-			if ($this->request->variable('cancel', false))
-			{
-				$action = '';
-				$this->state = false;
-				$this->save_state();
+				case 'update':
+					$this->update_action($id, $mode, $action);
+				break;
+
+				default:
+					trigger_error('NO_ACTION', E_USER_ERROR);
 			}
 		}
-
-		if ($action)
+		else
 		{
-			if ($action == 'progress_bar')
+			// If clicked to cancel (acp_storage_update_progress form)
+			if ($this->request->is_set_post('cancel'))
 			{
-				$this->display_progress_bar();
-			}
-			else if ($action != 'update')
-			{
-				trigger_error('NO_ACTION', E_USER_ERROR);
+				$this->state_helper->clear_state();
 			}
 
-			if (!check_link_hash($this->request->variable('hash', ''), 'acp_storage'))
+			// There is an updating in progress, show the form to continue or cancel
+			if ($this->state_helper->is_action_in_progress())
 			{
-				trigger_error($this->lang->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
+				$this->update_inprogress($id, $mode);
+			}
+			else
+			{
+				$this->settings_form($id, $mode);
+			}
+		}
+	}
+
+	private function update_action(string $id, string $mode, $action)
+	{
+		if (!check_link_hash($this->request->variable('hash', ''), 'acp_storage'))
+		{
+			trigger_error($this->lang->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
+		}
+
+		// If update_type is copy or move, copy files from the old to the new storage
+		if (in_array($this->state['update_type'], [self::STORAGE_UPDATE_TYPE_COPY, self::STORAGE_UPDATE_TYPE_MOVE], true))
+		{
+			$i = 0;
+			foreach ($this->state['storages'] as $storage_name => $storage_options)
+			{
+				// Skip storages that have already moved files
+				if ($this->state['storage_index'] > $i)
+				{
+					$i++;
+					continue;
+				}
+
+				$current_adapter = $this->get_current_adapter($storage_name);
+				$new_adapter = $this->get_new_adapter($storage_name);
+
+				$sql = 'SELECT file_id, file_path
+						FROM ' . STORAGE_TABLE . "
+						WHERE  storage = '" . $this->db->sql_escape($storage_name) . "'
+							AND file_id > " . (int) $this->state['file_index'];
+				$result = $this->db->sql_query($sql);
+
+				while ($row = $this->db->sql_fetchrow($result))
+				{
+					if (!still_on_time())
+					{
+						$this->save_state();
+						meta_refresh(1, append_sid($this->u_action . '&amp;action=update&amp;hash=' . generate_link_hash('acp_storage')));
+						trigger_error($this->lang->lang('self::STORAGE_UPDATE_REDIRECT', $this->lang->lang('STORAGE_' . strtoupper($storage_name) . '_TITLE'), $i + 1, count($this->state['storages'])));
+					}
+
+					$stream = $current_adapter->read_stream($row['file_path']);
+					$new_adapter->write_stream($row['file_path'], $stream);
+
+					if (is_resource($stream))
+					{
+						fclose($stream);
+					}
+
+					$this->state['file_index'] = $row['file_id']; // Set last uploaded file
+				}
+
+				// Copied all files of a storage, increase storage index and reset file index
+				$this->state['storage_index']++;
+				$this->state['file_index'] = 0;
 			}
 
-			// If update_type is copy or move, copy files from the old to the new storage
-			if (in_array($this->state['update_type'], [self::STORAGE_UPDATE_TYPE_COPY, self::STORAGE_UPDATE_TYPE_MOVE], true))
+			// If update_type is move files, remove the old files
+			if ($this->state['update_type'] === self::STORAGE_UPDATE_TYPE_MOVE)
 			{
 				$i = 0;
 				foreach ($this->state['storages'] as $storage_name => $storage_options)
 				{
 					// Skip storages that have already moved files
-					if ($this->state['storage_index'] > $i)
+					if ($this->state['remove_storage_index'] > $i)
 					{
 						$i++;
 						continue;
 					}
 
 					$current_adapter = $this->get_current_adapter($storage_name);
-					$new_adapter = $this->get_new_adapter($storage_name);
 
 					$sql = 'SELECT file_id, file_path
-						FROM ' . STORAGE_TABLE . "
-						WHERE  storage = '" . $this->db->sql_escape($storage_name) . "'
-							AND file_id > " . (int) $this->state['file_index'];
+							FROM ' . STORAGE_TABLE . "
+							WHERE  storage = '" . $this->db->sql_escape($storage_name) . "'
+								AND file_id > " . (int) $this->state['file_index'];
 					$result = $this->db->sql_query($sql);
 
 					while ($row = $this->db->sql_fetchrow($result))
@@ -215,94 +256,56 @@ class acp_storage
 						{
 							$this->save_state();
 							meta_refresh(1, append_sid($this->u_action . '&amp;action=update&amp;hash=' . generate_link_hash('acp_storage')));
-							trigger_error($this->lang->lang('self::STORAGE_UPDATE_REDIRECT', $this->lang->lang('STORAGE_' . strtoupper($storage_name) . '_TITLE'), $i + 1, count($this->state['storages'])));
+							trigger_error($this->lang->lang('STORAGE_UPDATE_REMOVE_REDIRECT', $this->lang->lang('STORAGE_' . strtoupper($storage_name) . '_TITLE'), $i + 1, count($this->state['storages'])));
 						}
 
-						$stream = $current_adapter->read_stream($row['file_path']);
-						$new_adapter->write_stream($row['file_path'], $stream);
-
-						if (is_resource($stream))
-						{
-							fclose($stream);
-						}
+						$current_adapter->delete($row['file_path']);
 
 						$this->state['file_index'] = $row['file_id']; // Set last uploaded file
 					}
 
-					// Copied all files of a storage, increase storage index and reset file index
-					$this->state['storage_index']++;
+					// Remove all files of a storage, increase storage index and reset file index
+					$this->state['remove_storage_index']++;
 					$this->state['file_index'] = 0;
 				}
-
-				// If update_type is move files, remove the old files
-				if ($this->state['update_type'] === self::STORAGE_UPDATE_TYPE_MOVE)
-				{
-					$i = 0;
-					foreach ($this->state['storages'] as $storage_name => $storage_options)
-					{
-						// Skip storages that have already moved files
-						if ($this->state['remove_storage_index'] > $i)
-						{
-							$i++;
-							continue;
-						}
-
-						$current_adapter = $this->get_current_adapter($storage_name);
-
-						$sql = 'SELECT file_id, file_path
-							FROM ' . STORAGE_TABLE . "
-							WHERE  storage = '" . $this->db->sql_escape($storage_name) . "'
-								AND file_id > " . (int) $this->state['file_index'];
-						$result = $this->db->sql_query($sql);
-
-						while ($row = $this->db->sql_fetchrow($result))
-						{
-							if (!still_on_time())
-							{
-								$this->save_state();
-								meta_refresh(1, append_sid($this->u_action . '&amp;action=update&amp;hash=' . generate_link_hash('acp_storage')));
-								trigger_error($this->lang->lang('STORAGE_UPDATE_REMOVE_REDIRECT', $this->lang->lang('STORAGE_' . strtoupper($storage_name) . '_TITLE'), $i + 1, count($this->state['storages'])));
-							}
-
-							$current_adapter->delete($row['file_path']);
-
-							$this->state['file_index'] = $row['file_id']; // Set last uploaded file
-						}
-
-						// Remove all files of a storage, increase storage index and reset file index
-						$this->state['remove_storage_index']++;
-						$this->state['file_index'] = 0;
-					}
-				}
 			}
-
-			// Here all files have been copied/moved, so save new configuration
-			foreach (array_keys($this->state['storages']) as $storage_name)
-			{
-				$this->update_storage_config($storage_name);
-			}
-
-			$storages = array_keys($this->state['storages']);
-			$this->state = false;
-			$this->save_state();
-
-			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_STORAGE_UPDATE', false, $storages);
-			trigger_error($this->lang->lang('STORAGE_UPDATE_SUCCESSFUL') . adm_back_link($this->u_action) . $this->close_popup_js());
 		}
 
-		// There is an updating in progress, show the form to continue or cancel
-		if ($this->state != false)
+		// Here all files have been copied/moved, so save new configuration
+		foreach (array_keys($this->state['storages']) as $storage_name)
 		{
-			$this->template->assign_vars(array(
-				'UA_PROGRESS_BAR'		=> addslashes(append_sid($this->path_helper->get_phpbb_root_path() . $this->path_helper->get_adm_relative_path() . "index." . $this->path_helper->get_php_ext(), "i=$id&amp;mode=$mode&amp;action=progress_bar")),
-				'S_CONTINUE_UPDATING'	=> true,
-				'U_CONTINUE_UPDATING'	=> $this->u_action . '&amp;action=update&amp;hash=' . generate_link_hash('acp_storage'),
-				'L_CONTINUE'			=> $this->lang->lang('CONTINUE_UPDATING'),
-				'L_CONTINUE_EXPLAIN'	=> $this->lang->lang('CONTINUE_UPDATING_EXPLAIN'),
-			));
-
-			return;
+			$this->update_storage_config($storage_name);
 		}
+
+		$storages = array_keys($this->state['storages']);
+		$this->state = false;
+		$this->save_state();
+
+		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_STORAGE_UPDATE', false, $storages);
+		trigger_error($this->lang->lang('STORAGE_UPDATE_SUCCESSFUL') . adm_back_link($this->u_action) . $this->close_popup_js());
+	}
+
+	private function update_inprogress(string $id, string $mode)
+	{
+		// Template from adm/style
+		$this->tpl_name = 'acp_storage_update_inprogress';
+
+		// Set page title
+		$this->page_title = 'STORAGE_TITLE';
+
+		$this->template->assign_vars(array(
+			'UA_PROGRESS_BAR'		=> addslashes(append_sid($this->path_helper->get_phpbb_root_path() . $this->path_helper->get_adm_relative_path() . "index." . $this->path_helper->get_php_ext(), "i=$id&amp;mode=$mode&amp;action=progress_bar")),
+			'U_CONTINUE_UPDATING'	=> $this->u_action . '&amp;action=update&amp;hash=' . generate_link_hash('acp_storage'),
+			'L_CONTINUE'			=> $this->lang->lang('CONTINUE_UPDATING'),
+			'L_CONTINUE_EXPLAIN'	=> $this->lang->lang('CONTINUE_UPDATING_EXPLAIN'),
+		));
+	}
+
+	private function settings_form(string $id, string $mode)
+	{
+		$form_key = 'acp_storage';
+
+		$this->storage_stats(); // Show table with storage stats
 
 		// Process form and create a "state" for the update,
 		// then show a confirm form
@@ -310,6 +313,7 @@ class acp_storage
 
 		if ($this->request->is_set_post('submit'))
 		{
+			// TODO: Check
 			if (!check_form_key($form_key) || !check_link_hash($this->request->variable('hash', ''), 'acp_storage'))
 			{
 				trigger_error($this->lang->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
@@ -359,14 +363,7 @@ class acp_storage
 				if (empty($messages))
 				{
 					// Create state
-					$this->state = [
-						// Save the value of the checkbox, to remove all files from the
-						// old storage once they have been successfully moved
-						'update_type' => (int) $this->request->variable('update_type', self::STORAGE_UPDATE_TYPE_CONFIG),
-						'storage_index' => 0,
-						'file_index' => 0,
-						'remove_storage_index' => 0,
-					];
+					$this->state_helper->init((int) $this->request->variable('update_type', self::STORAGE_UPDATE_TYPE_CONFIG));
 
 					// Save in the state the selected storages and their configuration
 					foreach ($modified_storages as $storage_name)
@@ -404,6 +401,28 @@ class acp_storage
 			trigger_error($this->lang->lang('STORAGE_NO_CHANGES') . adm_back_link($this->u_action), E_USER_WARNING);
 		}
 
+		// Template from adm/style
+		$this->tpl_name = 'acp_storage';
+
+		// Set page title
+		$this->page_title = 'STORAGE_TITLE';
+
+		$this->template->assign_vars([
+			'STORAGES'						=> $this->storage_collection,
+			'PROVIDERS' 					=> $this->provider_collection,
+
+			'ERROR_MESSAGES'				=> $messages,
+
+			'U_ACTION'						=> $this->u_action . '&amp;hash=' . generate_link_hash('acp_storage'),
+
+			'STORAGE_UPDATE_TYPE_CONFIG'	=> self::STORAGE_UPDATE_TYPE_CONFIG,
+			'STORAGE_UPDATE_TYPE_COPY'		=> self::STORAGE_UPDATE_TYPE_COPY,
+			'STORAGE_UPDATE_TYPE_MOVE'		=> self::STORAGE_UPDATE_TYPE_MOVE,
+		]);
+	}
+
+	protected function storage_stats()
+	{
 		// Top table with stats of each storage
 		$storage_stats = [];
 		foreach ($this->storage_collection as $storage)
@@ -431,18 +450,7 @@ class acp_storage
 		}
 
 		$this->template->assign_vars([
-			'STORAGES'						=> $this->storage_collection,
 			'STORAGE_STATS'					=> $storage_stats,
-			'PROVIDERS' 					=> $this->provider_collection,
-
-			'ERROR_MSG'						=> implode('<br>', $messages),
-			'S_ERROR'						=> !empty($messages),
-
-			'U_ACTION'						=> $this->u_action . '&amp;hash=' . generate_link_hash('acp_storage'),
-
-			'STORAGE_UPDATE_TYPE_CONFIG'	=> self::STORAGE_UPDATE_TYPE_CONFIG,
-			'STORAGE_UPDATE_TYPE_COPY'		=> self::STORAGE_UPDATE_TYPE_COPY,
-			'STORAGE_UPDATE_TYPE_MOVE'		=> self::STORAGE_UPDATE_TYPE_MOVE,
 		]);
 	}
 
@@ -453,11 +461,11 @@ class acp_storage
 	{
 		adm_page_header($this->lang->lang('STORAGE_UPDATE_IN_PROGRESS'));
 		$this->template->set_filenames(array(
-			'body'	=> 'progress_bar.html')
+				'body'	=> 'progress_bar.html')
 		);
 		$this->template->assign_vars(array(
-			'L_PROGRESS'			=> $this->lang->lang('STORAGE_UPDATE_IN_PROGRESS'),
-			'L_PROGRESS_EXPLAIN'	=> $this->lang->lang('STORAGE_UPDATE_IN_PROGRESS_EXPLAIN'))
+				'L_PROGRESS'			=> $this->lang->lang('STORAGE_UPDATE_IN_PROGRESS'),
+				'L_PROGRESS_EXPLAIN'	=> $this->lang->lang('STORAGE_UPDATE_IN_PROGRESS_EXPLAIN'))
 		);
 		adm_page_footer();
 	}
@@ -474,36 +482,6 @@ class acp_storage
 			"	close_waitscreen = 1;\n" .
 			"// ]]>\n" .
 			"</script>\n";
-	}
-
-	/**
-	 * Save state of storage update
-	 */
-	protected function save_state() : void
-	{
-		$state = $this->state;
-
-		if ($state == false)
-		{
-			$state = [];
-		}
-
-		$this->config_text->set('storage_update_state', json_encode($state));
-	}
-
-	/**
-	 * Load state of storage update
-	 */
-	protected function load_state() : void
-	{
-		$state = json_decode($this->config_text->get('storage_update_state'), true);
-
-		if ($state == null || empty($state))
-		{
-			$state = false;
-		}
-
-		$this->state = $state;
 	}
 
 	/**
