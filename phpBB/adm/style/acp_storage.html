@@ -27,12 +27,12 @@
 	</tbody>
 </table>
 
-{% if ERROR_MESSAGES is empty %}
+{% if ERROR_MESSAGES is not empty %}
 <div class="errorbox">
 	<h3>{{ lang('WARNING') }}</h3>
 	{% for ERROR_MESSAGE in ERROR_MESSAGES %}
 		<p>{{ ERROR_MESSAGE }}</p>
-	{% endif %}
+	{% endfor %}
 </div>
 {% endif %}
 

@@ -107,3 +107,22 @@ services:
             - '@storage.attachment'
             - '@symfony_request'
             - '@user'
+
+# Hwlpers
+    storage.state_helper:
+        class: phpbb\storage\state_helper
+        arguments:
+            - '@config'
+            - '@storage.helper'
+#            - '@request'
+#            - '@storage.adapter.factory'
+#            - '@storage.provider_collection'
+#            - '@storage.storage_collection'
+#            - '@user'
+#
+
+    storage.helper:
+        class: phpbb\storage\helper
+        arguments:
+            - '@config'
+            - '@storage.provider_collection'

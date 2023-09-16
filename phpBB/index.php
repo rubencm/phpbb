@@ -1,4 +1,9 @@
 <?php
+$_GET['a'] = "\n\tabc\n\t";
+echo "var_dump(\$_GET['a']);\n";
+var_dump($_GET['a']);
+echo "\n";
+
 /**
 *
 * This file is part of the phpBB Forum Software package.
@@ -21,6 +26,16 @@ define('IN_PHPBB', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
+
+echo "var_dump(\$request->untrimmed_variable('a', ''));".PHP_EOL;
+var_dump($request->untrimmed_variable('a', ''));
+echo PHP_EOL;
+
+echo "var_dump(\$request->untrimmed_variable('a', '', true));".PHP_EOL;
+var_dump($request->untrimmed_variable('a', '', true));
+echo PHP_EOL;
+
+
 include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 
 // Start session management
