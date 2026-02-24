@@ -1,0 +1,34 @@
+installer:
+    admin:
+        name: admin
+        password: adminadmin
+        email: admin@example.org
+
+    board:
+        lang: en
+        name: phpBB Docker Dev
+        description: My phpBB Docker development board
+
+    database:
+        dbms: mysqli
+        dbhost: db
+        dbport: 3306
+        dbuser: phpbb
+        dbpasswd: phpbb
+        dbname: phpbb
+        table_prefix: phpbb_
+
+    email:
+        enabled: false
+        smtp_delivery : ~
+        smtp_host: ~
+        smtp_user: ~
+        smtp_pass: ~
+
+    server:
+        cookie_secure: false
+        server_protocol: http://
+        force_server_vars: false
+        server_name: localhost
+        server_port: 8080
+        script_path: /

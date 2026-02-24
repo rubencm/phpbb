@@ -1,0 +1,43 @@
+services:
+  phpbb:
+    image: phpbb-dev:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../phpBB:/var/www/html
+      - ./install-config.yml:/var/www/html/install-config.yml
+      # ensure config.php is writable if it exists, or the directory is writable.
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      - PHPBB_DB_DRIVER=mysqli
+      - PHPBB_DB_HOST=db
+      - PHPBB_DB_PORT=3306
+      - PHPBB_DB_NAME=phpbb
+      - PHPBB_DB_USER=phpbb
+      - PHPBB_DB_PASSWD=phpbb
+    networks:
+      - phpbb-net
+
+  db:
+    image: mariadb:10.11
+    environment:
+      - MARIADB_ROOT_PASSWORD=root_password
+      - MARIADB_DATABASE=phpbb
+      - MARIADB_USER=phpbb
+      - MARIADB_PASSWORD=phpbb
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "33060:3306"
+    networks:
+      - phpbb-net
+
+volumes:
+  db_data:
+
+networks:
+  phpbb-net:
