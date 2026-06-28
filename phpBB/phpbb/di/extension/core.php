@@ -17,8 +17,8 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use phpbb\filesystem\helper as filesystem_helper;
 
 /**
@@ -56,7 +56,7 @@ class core extends Extension
 	 *
 	 * @throws \InvalidArgumentException When provided tag is not defined in this extension
 	 */
-	public function load(array $configs, ContainerBuilder $container)
+	public function load(array $configs, ContainerBuilder $container): void
 	{
 		$loader = new YamlFileLoader($container, new FileLocator(filesystem_helper::realpath($this->config_path)));
 		$loader->load($container->getParameter('core.environment') . '/container/environment.yml');
