@@ -155,6 +155,8 @@ vendor/bin/phing -f build/build.xml test
   `mb_convert_encoding($str, 'UTF-8', 'ISO-8859-1')` instead
 - **Deprecated in PHP 8.4**: implicit nullable type hints
   (`function foo(Type $x = null)`) — use `Type|null $x = null` instead
+- **PHP 8.4 Features**: Do NOT use PHP 8.4 specific features (e.g. property
+  hooks, asymmetric visibility) as the codebase must support PHP 8.2.
 - Dynamic properties (without `#[\AllowDynamicProperties]`) are deprecated
   in PHP 8.2 — some phpBB classes suppress this via Psalm config
 
@@ -305,33 +307,24 @@ class my_extension extends Extension
 
 ---
 
-## TODO (for a human to complete)
+## Additional Developer Documentation
 
-- [ ] **Database setup for tests**: Document how to configure the test
-  database (MySQL/PostgreSQL/SQLite). The `tests/config.php` or environment
-  variables needed to run database integration tests.
+For topics not covered in this guide, refer to the following official resources:
 
-- [ ] **Functional test setup**: Document how to spin up a local phpBB
-  instance for running `tests/functional/` tests (web server config, install
-  steps, environment variables like `PHPBB_TEST_URL`).
+*   **Test Suite Configuration**: Detailed instructions on setting up database
+    and functional tests are available in [RUNNING_TESTS.md].
+*   **Extension Development**: Guidelines and architecture for third-party
+    extensions are in the [phpBB Extension Development Documentation][Extension Documentation].
+*   **Database Migrations**: Instructions on creating, running, and reverting
+    migrations are in the [phpBB Migration Documentation][Migration Documentation].
+*   **Template System**: Guide to styles, templates, events, and syntax in the
+    [phpBB Style Documentation][Style Documentation].
+*   **CI/CD Pipeline**: GitHub Actions workflows are defined under
+    [.github/workflows/tests.yml][tests.yml].
 
-- [ ] **Extension development**: Document the process for developing and
-  testing third-party phpBB extensions that integrate with the DI container
-  and event system.
-
-- [ ] **Migration authoring**: Document how to create database migration
-  files (`phpBB/phpbb/db/migration/data/`) including the schema and data
-  change API, and how to run/revert migrations locally.
-
-- [ ] **CI/CD pipeline**: Document what the GitHub Actions workflows do
-  (matrix of PHP versions, DB backends, test suites) and how to interpret
-  CI failures.
-
-- [ ] **Template system**: Document the Twig-based template system (`*.html`
-  files in `phpBB/styles/`), template events, and how controllers pass data
-  to templates.
-
-- [ ] **Minimum supported PHP for new code**: Clarify whether PHP 8.4
-  features (e.g. property hooks, asymmetric visibility) may be used given the
-  `^8.2` requirement.
+[RUNNING_TESTS.md]: file:///home/rubencm/Desktop/repos/phpbb/tests/RUNNING_TESTS.md
+[Extension Documentation]: https://area51.phpbb.com/docs/dev/3.3.x/extensions/index.html
+[Migration Documentation]: https://area51.phpbb.com/docs/dev/3.3.x/migrations/index.html
+[Style Documentation]: https://area51.phpbb.com/docs/dev/3.3.x/styles/index.html
+[tests.yml]: file:///home/rubencm/Desktop/repos/phpbb/.github/workflows/tests.yml
 
