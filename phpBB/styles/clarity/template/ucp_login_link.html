@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="panel">
+	<div class="inner">
+
+	<h2>{{ SITENAME }} - {{ lang('LOGIN_LINK') }}</h2>
+
+	<p>{{ lang('LOGIN_LINK_EXPLAIN') }}</p>
+
+	{% if LOGIN_LINK_ERROR %}<div class="content">
+		<div class="error">{{ LOGIN_LINK_ERROR }}</div>
+	</div>{% endif %}
+
+	<div class="content">
+		<h2>{{ lang('REGISTER') }}</h2>
+
+		<form action="{{ REGISTER_ACTION }}" method="post" id="register">
+			<fieldset class="fields1">
+				<dl>
+					<dt>&nbsp;</dt>
+					<dd>{{ S_HIDDEN_FIELDS }}<input type="submit" name="register" tabindex="1" value="{{ lang('REGISTER') }}" class="button1 button button-form" /></dd>
+				</dl>
+			</fieldset>
+		</form>
+	</div>
+
+	<div class="content">
+		<h2>{{ lang('LOGIN') }}</h2>
+
+		<form action="{{ LOGIN_ACTION }}" method="post" id="login">
+			<fieldset class="fields1">
+				{% if LOGIN_ERROR %}<div class="error">{{ LOGIN_ERROR }}</div>{% endif %}
+				<dl>
+					<dt><label for="{{ USERNAME_CREDENTIAL }}">{{ lang('USERNAME') }}{{ lang('COLON') }}</label></dt>
+					<dd><input type="text" tabindex="2" name="{{ USERNAME_CREDENTIAL }}" id="{{ USERNAME_CREDENTIAL }}" size="25" value="{{ LOGIN_USERNAME }}" class="inputbox autowidth" autocomplete="username" /></dd>
+				</dl>
+				<dl>
+					<dt><label for="{{ PASSWORD_CREDENTIAL }}">{{ lang('PASSWORD') }}{{ lang('COLON') }}</label></dt>
+					<dd><input type="password" tabindex="3" id="{{ PASSWORD_CREDENTIAL }}" name="{{ PASSWORD_CREDENTIAL }}" size="25" class="inputbox autowidth" autocomplete="current-password" /></dd>
+				</dl>
+				{% if CAPTCHA_TEMPLATE and S_CONFIRM_CODE %}
+					{% DEFINE CAPTCHA_TAB_INDEX = 4 %}
+					{% include CAPTCHA_TEMPLATE %}
+				{% endif %}
+
+				{{ S_LOGIN_REDIRECT }}
+				<dl>
+					<dt>&nbsp;</dt>
+					<dd>{{ S_HIDDEN_FIELDS }}<input type="submit" name="login" tabindex="5" value="{{ lang('LOGIN') }}" class="button1 button button-form" /></dd>
+				</dl>
+			</fieldset>
+		</form>
+	</div>
+
+	</div>
+</div>
+{% endblock %}

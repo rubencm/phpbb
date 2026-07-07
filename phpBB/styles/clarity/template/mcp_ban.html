@@ -1,0 +1,128 @@
+{% extends 'base_mcp.html' %}
+
+{% block mcp_content %}
+<script>
+	var ban_length = new Array();
+		ban_length[-1] = '';
+	var ban_reason = new Array();
+		ban_reason[-1] = '';
+	var ban_give_reason = new Array();
+		ban_give_reason[-1] = '';
+
+	{% for bans in loops.bans %}
+		ban_length['{{ bans.BAN_ID }}'] = '{{ bans.A_LENGTH }}';
+		{% if bans.A_REASON %}
+			ban_reason['{{ bans.BAN_ID }}'] = '{{ bans.REASON | e('js') }}';
+		{% endif %}
+		{% if bans.A_GIVE_REASON %}
+			ban_give_reason['{{ bans.BAN_ID }}'] = '{{ bans.GIVE_REASON | e('js') }}';
+		{% endif %}
+	{% endfor %}
+
+	function display_details(option)
+	{
+		document.getElementById('unbanlength').innerHTML = ban_length[option];
+		if (option in ban_reason) {
+			document.getElementById('unbanreason').innerHTML = ban_reason[option];
+		} else {
+			document.getElementById('unbanreason').innerHTML = '';
+		}
+		if (option in ban_give_reason) {
+			document.getElementById('unbangivereason').innerHTML = ban_give_reason[option];
+		} else {
+			document.getElementById('unbangivereason').innerHTML = '';
+		}
+	}
+</script>
+
+<form id="mcp_ban" method="post" action="{{ U_ACTION }}">
+
+<h2>{{ lang('TITLE') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+
+	<h3>{{ lang('TITLE') }}</h3>
+	<p>{{ lang('EXPLAIN') }}</p>
+
+	<fieldset>
+	{% EVENT mcp_ban_fields_before %}
+	<dl>
+		<dt><label for="ban">{{ lang('BAN_CELL') }}{{ lang('COLON') }}</label></dt>
+		<dd><label for="ban"><textarea name="ban" id="ban" class="inputbox" cols="40" rows="3">{{ BAN_QUANTIFIER }}</textarea></label></dd>
+		{% if S_USERNAME_BAN %}<dd><strong><a href="{{ U_FIND_USERNAME }}" onclick="find_username(this.href); return false;">{{ lang('FIND_USERNAME') }}</a></strong></dd>{% endif %}
+	</dl>
+	<dl>
+		<dt><label for="banlength">{{ lang('BAN_LENGTH') }}{{ lang('COLON') }}</label></dt>
+		<dd><label for="banlength"><select name="banlength" id="banlength" onchange="if(this.value==-1){document.getElementById('banlengthother').style.display = 'block';}else{document.getElementById('banlengthother').style.display='none';}">{{ S_BAN_END_OPTIONS }}</select></label></dd>
+		<dd id="banlengthother" style="display: none;"><label><input type="text" name="banlengthother" class="inputbox" /><br /><span>{{ lang('YEAR_MONTH_DAY') }}</span></label></dd>
+	</dl>
+	<dl>
+		<dt><label for="banreason">{{ lang('BAN_REASON') }}{{ lang('COLON') }}</label></dt>
+		<dd><input name="banreason" id="banreason" type="text" class="inputbox" maxlength="255" /></dd>
+	</dl>
+	<dl>
+		<dt><label for="bangivereason">{{ lang('BAN_GIVE_REASON') }}{{ lang('COLON') }}</label></dt>
+		<dd><input name="bangivereason" id="bangivereason" type="text" class="inputbox" maxlength="255" /></dd>
+	</dl>
+
+	<hr />
+
+	{% EVENT mcp_ban_fields_after %}
+	</fieldset>
+
+	</div>
+</div>
+
+<fieldset class="submit-buttons">
+	{{ S_HIDDEN_FIELDS }}
+	<input type="submit" name="bansubmit" value="{{ lang('SUBMIT') }}" class="button1 button button-form" />
+	{{ S_FORM_TOKEN }}
+</fieldset>
+
+<div class="panel">
+	<div class="inner">
+
+	<h3>{{ lang('UNBAN_TITLE') }}</h3>
+	<p>{{ lang('UNBAN_EXPLAIN') }}</p>
+
+	{% if S_BANNED_OPTIONS %}
+		<fieldset>
+		{% EVENT mcp_ban_unban_before %}
+		<dl>
+			<dt><label for="unban">{{ lang('BAN_CELL') }}{{ lang('COLON') }}</label></dt>
+			<dd><select name="unban[]" id="unban" multiple="multiple" size="5" onchange="if (this.selectedIndex != -1) {display_details(this.options[this.selectedIndex].value);}">{{ BANNED_OPTIONS }}</select></dd>
+		</dl>
+		<dl>
+			<dt>{{ lang('BAN_LENGTH') }}{{ lang('COLON') }}</dt>
+			<dd><strong id="unbanlength"></strong></dd>
+		</dl>
+		<dl>
+			<dt>{{ lang('BAN_REASON') }}{{ lang('COLON') }}</dt>
+			<dd><strong id="unbanreason"></strong></dd>
+		</dl>
+		<dl>
+			<dt>{{ lang('BAN_GIVE_REASON') }}{{ lang('COLON') }}</dt>
+			<dd><strong id="unbangivereason"></strong></dd>
+		</dl>
+		{% EVENT mcp_ban_unban_after %}
+		</fieldset>
+
+		</div>
+	</div>
+
+	<fieldset class="submit-buttons">
+		{{ S_HIDDEN_FIELDS }}
+		<input type="submit" name="unbansubmit" value="{{ lang('SUBMIT') }}" class="button1 button button-form" />
+	</fieldset>
+
+	{% else %}
+
+		<p><strong>{{ lang('NO_BAN_CELL') }}</strong></p>
+
+		</div>
+	</div>
+
+	{% endif %}
+</form>
+{% endblock %}

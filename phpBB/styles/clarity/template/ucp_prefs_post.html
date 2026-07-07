@@ -1,0 +1,55 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+<form id="ucp" method="post" action="{{ S_UCP_ACTION }}"{{ S_FORM_ENCTYPE }}>
+
+<h2>{{ lang('TITLE') }}</h2>
+<div class="panel">
+	<div class="inner">
+
+	<fieldset>
+	{% if ERROR %}<p class="error">{{ ERROR }}</p>{% endif %}
+	{% EVENT ucp_prefs_post_prepend %}
+	<dl>
+		<dt><label for="bbcode1">{{ lang('DEFAULT_BBCODE') }}{{ lang('COLON') }}</label></dt>
+		<dd>
+			<label for="bbcode1"><input type="radio" name="bbcode" id="bbcode1" value="1"{% if S_BBCODE %} checked="checked"{% endif %} /> {{ lang('YES') }}</label>
+			<label for="bbcode0"><input type="radio" name="bbcode" id="bbcode0" value="0"{% if not S_BBCODE %} checked="checked"{% endif %} /> {{ lang('NO') }}</label>
+		</dd>
+	</dl>
+	<dl>
+		<dt><label for="smilies1">{{ lang('DEFAULT_SMILIES') }}{{ lang('COLON') }}</label></dt>
+		<dd>
+			<label for="smilies1"><input type="radio" name="smilies" id="smilies1" value="1"{% if S_SMILIES %} checked="checked"{% endif %} /> {{ lang('YES') }}</label>
+			<label for="smilies0"><input type="radio" name="smilies" id="smilies0" value="0"{% if not S_SMILIES %} checked="checked"{% endif %} /> {{ lang('NO') }}</label>
+		</dd>
+	</dl>
+	{% if S_SIG_ALLOWED %}
+	<dl>
+		<dt><label for="sig1">{{ lang('DEFAULT_ADD_SIG') }}{{ lang('COLON') }}</label></dt>
+		<dd>
+			<label for="sig1"><input type="radio" name="sig" id="sig1" value="1"{% if S_SIG %} checked="checked"{% endif %} /> {{ lang('YES') }}</label>
+			<label for="sig0"><input type="radio" name="sig" id="sig0" value="0"{% if not S_SIG %} checked="checked"{% endif %} /> {{ lang('NO') }}</label>
+		</dd>
+	</dl>
+	{% endif %}
+	<dl>
+		<dt><label for="notify1">{{ lang('DEFAULT_NOTIFY') }}{{ lang('COLON') }}</label></dt>
+		<dd>
+			<label for="notify1"><input type="radio" name="notify" id="notify1" value="1"{% if S_NOTIFY %} checked="checked"{% endif %} /> {{ lang('YES') }}</label>
+			<label for="notify0"><input type="radio" name="notify" id="notify0" value="0"{% if not S_NOTIFY %} checked="checked"{% endif %} /> {{ lang('NO') }}</label>
+		</dd>
+	</dl>
+	{% EVENT ucp_prefs_post_append %}
+	</fieldset>
+
+	</div>
+</div>
+
+<fieldset class="submit-buttons">
+	{{ S_HIDDEN_FIELDS }}
+	<input type="submit" name="submit" value="{{ lang('SUBMIT') }}" class="button1 button button-form" />
+	{{ S_FORM_TOKEN }}
+</fieldset>
+</form>
+{% endblock %}

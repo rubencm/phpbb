@@ -1,0 +1,51 @@
+<div class="post {% if S_PRIVMSGS %}pm{% else %}bg2{% endif %}" id="preview">
+	<div class="inner">
+
+{% if S_HAS_POLL_OPTIONS %}
+	<div class="content">
+		<h2>{{ lang('PREVIEW') }}{{ lang('COLON') }} {{ POLL_QUESTION }}</h2>
+		<p class="author">{% if L_POLL_LENGTH %}{{ lang('POLL_LENGTH') }}<br />{% endif %}{{ lang('MAX_VOTES') }}</p>
+
+		<fieldset class="polls">
+		{% for poll_option in loops.poll_option %}
+			<dl>
+				<dt><label for="vote_{{ poll_option.POLL_OPTION_ID }}">{{ poll_option.POLL_OPTION_CAPTION }}</label></dt>
+				<dd style="width: auto;">{% if S_IS_MULTI_CHOICE %}<input type="checkbox" name="vote_id[]" id="vote_{{ poll_option.POLL_OPTION_ID }}" value="{{ poll_option.POLL_OPTION_ID }}"{% if poll_option.POLL_OPTION_VOTED %} checked="checked"{% endif %} />{% else %}<input type="radio" name="vote_id[]" id="vote_{{ poll_option.POLL_OPTION_ID }}" value="{{ poll_option.POLL_OPTION_ID }}"{% if poll_option.POLL_OPTION_VOTED %} checked="checked"{% endif %} />{% endif %}</dd>
+			</dl>
+		{% endfor %}
+		</fieldset>
+	</div>
+
+	</div>
+</div>
+
+<div class="post bg2">
+	<div class="inner">
+
+{% endif %}
+
+{% EVENT posting_preview_poll_after %}
+
+	<div class="postbody">
+		<h3>{{ lang('PREVIEW') }}{{ lang('COLON') }} {{ PREVIEW_SUBJECT }}</h3>
+
+		<div class="content">{{ PREVIEW_MESSAGE }}</div>
+
+		{% EVENT posting_preview_content_after %}
+
+		{% if loops.attachment|length %}
+		<dl class="attachbox">
+			<dt>{{ lang('ATTACHMENTS') }}</dt>
+			{% for attachment in loops.attachment %}
+			<dd>{{ attachment.DISPLAY_ATTACHMENT }}</dd>
+			{% endfor %}
+		</dl>
+		{% endif %}
+
+		{% if PREVIEW_SIGNATURE %}<div class="signature">{{ PREVIEW_SIGNATURE }}</div>{% endif %}
+	</div>
+
+	</div>
+</div>
+
+<hr />

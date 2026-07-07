@@ -1,0 +1,136 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+{% if not PROMPT %}
+	{% include 'ucp_pm_message_header.html' %}
+{% endif %}
+
+{% if PROMPT %}
+	<h2>{{ lang('EXPORT_AS_CSV') }}</h2>
+	<form id="viewfolder" method="post" action="{{ S_PM_ACTION }}">
+	<div class="panel">
+		<div class="inner">
+		<h3>{{ lang('OPTIONS') }}</h3>
+		<fieldset>
+			<dl>
+				<dt><label for="delimiter">{{ lang('DELIMITER') }}{{ lang('COLON') }}</label></dt>
+				<dd><input class="inputbox" type="text" id="delimiter" name="delimiter" value="," /></dd>
+			</dl>
+			<dl>
+				<dt><label for="enclosure">{{ lang('ENCLOSURE') }}{{ lang('COLON') }}</label></dt>
+				<dd><input class="inputbox" type="text" id="enclosure" name="enclosure" value="&#034;" /></dd>
+			</dl>
+		</fieldset>
+		</div>
+	</div>
+	<fieldset class="submit-buttons">
+		<input type="hidden" name="export_option" value="CSV" />
+		<input class="button1 button button-form" type="submit" name="submit_export" value="{{ lang('EXPORT_FOLDER') }}" />&nbsp;
+		<input class="button1 button button-form-bold" type="reset" value="{{ lang('RESET') }}" name="reset" />&nbsp;
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+	</form>
+
+{% else %}
+
+	{% if NUM_REMOVED %}
+		<div class="notice">
+			<p>{{ RULE_REMOVED_MESSAGES }}</p>
+		</div>
+	{% endif %}
+
+	{% if NUM_NOT_MOVED %}
+		<div class="notice">
+			<p>{{ NOT_MOVED_MESSAGES }}<br />{{ RELEASE_MESSAGE_INFO }}</p>
+		</div>
+	{% endif %}
+
+	{% if loops.messagerow|length %}
+		<ul class="topiclist two-columns">
+			<li class="header">
+				<dl>
+					<dt><div class="list-inner">{{ lang('MESSAGE') }}</div></dt>
+					<dd class="mark">{{ lang('MARK') }}</dd>
+				</dl>
+			</li>
+		</ul>
+		<ul class="topiclist cplist pmlist responsive-show-all {% if S_SHOW_RECIPIENTS %}missing-column{% else %}two-columns{% endif %}">
+
+		{% for messagerow in loops.messagerow %}
+			<li class="row{% if messagerow.S_ROW_COUNT is odd %} bg1{% else %} bg2{% endif %}{% if messagerow.PM_CLASS %} {{ messagerow.PM_CLASS }}{% endif %}">
+				<dl class="row-item">
+					<dt>
+						<a class="row-item-link{% if messagerow.S_PM_UNREAD %} unread{% else %} read{% endif %}" href="{{ messagerow.U_VIEW_PM }}">
+							{{ Icon('svg', 'comment-text-outline', '', true, 'c-forum-row-icon') }}
+						</a>
+						{% if messagerow.PM_ICON_URL and S_PM_ICONS %}
+							<img class="row-item-sub" src="{{ messagerow.PM_ICON_URL }}" alt="">
+						{% endif %}
+						<div class="list-inner">
+
+						{% if messagerow.S_PM_DELETED %}
+							<a href="{{ messagerow.U_REMOVE_PM }}" class="topictitle">{{ lang('DELETE_MESSAGE') }}</a><br />
+							<span class="error">{{ lang('MESSAGE_REMOVED_FROM_OUTBOX') }}</span>
+						{% else %}
+							<a href="{{ messagerow.U_VIEW_PM }}" class="topictitle">{{ messagerow.SUBJECT }}</a>
+						{% endif %}
+						{% if messagerow.S_AUTHOR_DELETED %}
+							<br /><em class="small">{{ lang('PM_FROM_REMOVED_AUTHOR') }}</em>
+						{% endif %}
+						{% if messagerow.S_PM_REPORTED %}
+							<a href="{{ messagerow.U_MCP_REPORT }}">
+								{{ Icon('font', 'triangle-exclamation', PM_REPORTED, true, 'fas c-topic-reported-icon') }}
+							</a>
+						{% endif %} {% if messagerow.ATTACH_ICON_IMG %}{{ Icon('font', 'paperclip', '', true) }} {% endif %}<br />
+						{% if S_SHOW_RECIPIENTS %}{{ lang('MESSAGE_TO') }} {{ messagerow.RECIPIENTS }}{% else %}{{ lang('MESSAGE_BY_AUTHOR') }} {{ messagerow.MESSAGE_AUTHOR_FULL }} &raquo; {{ messagerow.SENT_TIME }}{% endif %}
+
+						</div>
+					</dt>
+					{% if S_SHOW_RECIPIENTS %}<dd class="info"><span>{{ lang('SENT_AT') }}{{ lang('COLON') }} {{ messagerow.SENT_TIME }}</span></dd>{% endif %}
+					{% if S_UNREAD %}<dd class="info">{% if messagerow.FOLDER %}<a href="{{ messagerow.U_FOLDER }}">{{ messagerow.FOLDER }}</a>{% else %}{{ lang('UNKNOWN_FOLDER') }}{% endif %}</dd>{% endif %}
+					<dd class="mark"><input type="checkbox" name="marked_msg_id[]" value="{{ messagerow.MESSAGE_ID }}" /></dd>
+				</dl>
+			</li>
+		{% endfor %}
+
+		</ul>
+	{% else %}
+		<p><strong>
+			{% if S_COMPOSE_PM_VIEW and S_NO_AUTH_SEND_MESSAGE %}
+				{% if S_USER_NEW %}{{ lang('USER_NEW_PERMISSION_DISALLOWED') }}{% else %}{{ lang('NO_AUTH_SEND_MESSAGE') }}{% endif %}
+			{% else %}
+				{{ lang('NO_MESSAGES') }}
+			{% endif %}
+		</strong></p>
+	{% endif %}
+
+	{% if FOLDER_CUR_MESSAGES != 0 %}
+		<fieldset class="display-actions">
+			<div class="left-box"><label for="export_option">{{ lang('EXPORT_FOLDER') }}{{ lang('COLON') }} <select name="export_option" id="export_option"><option value="CSV">{{ lang('EXPORT_AS_CSV') }}</option><option value="CSV_EXCEL">{{ lang('EXPORT_AS_CSV_EXCEL') }}</option><option value="XML">{{ lang('EXPORT_AS_XML') }}</option></select></label> <input class="button1 button button-form-bold" type="submit" name="submit_export" value="{{ lang('GO') }}" /><br /></div>
+			<select name="mark_option">{{ S_MARK_OPTIONS }}{{ S_MOVE_MARKED_OPTIONS }}</select> <input class="button1 button button-form-bold" type="submit" name="submit_mark" value="{{ lang('GO') }}" />
+			<div><a href="#" onclick="marklist('viewfolder', 'marked_msg', true); return false;">{{ lang('MARK_ALL') }}</a> &bull; <a href="#" onclick="marklist('viewfolder', 'marked_msg', false); return false;">{{ lang('UNMARK_ALL') }}</a></div>
+		</fieldset>
+
+		<hr />
+
+		<div class="action-bar bottom">
+			{% include 'display_options.html' %}
+			<input type="hidden" name="cur_folder_id" value="{{ CUR_FOLDER_ID }}" />
+
+			<div class="pagination">
+				{{ TOTAL_MESSAGES }}
+				{% if loops.pagination|length %}
+					{% include 'pagination.html' %}
+				{% else %}
+					 &bull; {{ PAGE_NUMBER }}
+				{% endif %}
+			</div>
+		</div>
+	{% endif %}
+
+		</div>
+	</div>
+
+	{% include 'ucp_pm_message_footer.html' %}
+{% endif %}
+{% endblock %}

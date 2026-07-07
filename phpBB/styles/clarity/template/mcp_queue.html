@@ -1,0 +1,123 @@
+{% extends 'base_mcp.html' %}
+
+{% block mcp_content %}
+<form id="mcp" method="post" action="{{ S_MCP_ACTION }}">
+
+<fieldset class="forum-selection">
+	<label for="fo">{{ lang('FORUM') }}{{ lang('COLON') }} <select name="f" id="fo">{{ S_FORUM_OPTIONS }}</select></label>
+	<input type="submit" name="sort" value="{{ lang('GO') }}" class="button1 button button-form-bold" />
+	{{ S_FORM_TOKEN }}
+</fieldset>
+
+<h2>{{ lang('TITLE') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+
+	<p>{{ lang('EXPLAIN') }}</p>
+
+	{% if loops.postrow|length %}
+		<div class="action-bar bar-top">
+			<div class="pagination">
+				{{ TOTAL }}
+				{% if loops.pagination|length %}
+					{% include 'pagination.html' %}
+				{% else %}
+					 &bull; {{ PAGE_NUMBER }}
+				{% endif %}
+			</div>
+		</div>
+
+		<ul class="topiclist missing-column">
+			<li class="header">
+				<dl>
+					<dt><div class="list-inner">{% if S_TOPICS %}{{ lang('TOPIC') }}{% else %}{{ lang('POST') }}{% endif %}</div></dt>
+					<dd class="moderation"><span>{% if not S_TOPICS %}{{ lang('TOPIC') }} &amp; {% endif %}{{ lang('FORUM') }}</span></dd>
+					<dd class="mark">{{ lang('MARK') }}</dd>
+				</dl>
+			</li>
+			</ul>
+			<ul class="topiclist cplist missing-column responsive-show-all">
+
+		{% for postrow in loops.postrow %}
+
+		{% if postrow.S_DELETED_TOPIC %}
+			<li><p class="notopics">{{ lang('DELETED_TOPIC') }}</p></li>
+		{% else %}
+
+		<li class="row{% if postrow.S_ROW_COUNT is odd %} bg1{% else %} bg2{% endif %}">
+			<dl>
+				<dt>
+					<div class="list-inner">
+						<a href="{{ postrow.U_VIEW_DETAILS }}" class="topictitle">{{ postrow.POST_SUBJECT }}</a>{% if postrow.S_HAS_ATTACHMENTS %} {{ Icon('font', 'paperclip', '', true) }} {% endif %}<br />
+						<span>{{ lang('POSTED') }} {{ lang('POST_BY_AUTHOR') }} {{ postrow.POST_AUTHOR_FULL }} &raquo; {{ postrow.POST_TIME }}</span>
+					</div>
+				</dt>
+				<dd class="moderation">
+					<span>
+						{% if S_TOPICS %}<br />{% else %}{{ lang('TOPIC') }}{{ lang('COLON') }} <a href="{{ postrow.U_TOPIC }}">{{ postrow.TOPIC_TITLE }}</a> <br />{% endif %}
+						{{ lang('FORUM') }}{{ lang('COLON') }} <a href="{{ postrow.U_VIEWFORUM }}">{{ postrow.FORUM_NAME }}</a>
+					</span>
+				</dd>
+
+
+		 		<dd class="mark">
+					{% if S_TOPICS %}
+						<input type="checkbox" name="topic_id_list[]" value="{{ postrow.TOPIC_ID }}" />
+					{% else %}
+						<input type="checkbox" name="post_id_list[]" value="{{ postrow.POST_ID }}" />
+					{% endif %}
+				</dd>
+			</dl>
+		</li>
+		{% endif %}
+		{% endfor %}
+		</ul>
+
+		<div class="action-bar bottom">
+			{% include 'display_options.html' %}
+			{% if TOPIC_ID %}<label><input type="checkbox" class="radio" name="t" value="{{ TOPIC_ID }}" checked="checked" onClick="document.getElementById('mcp').submit()" /> <strong>{{ lang('ONLY_TOPIC') }}</strong></label>{% endif %}
+
+			<div class="pagination">
+				{{ TOTAL }}
+				{% if loops.pagination|length %}
+					{% include 'pagination.html' %}
+				{% else %}
+					 &bull; {{ PAGE_NUMBER }}
+				{% endif %}
+			</div>
+		</div>
+
+	{% else %}
+		<p class="notopics"><strong>
+			{% if S_RESTORE %}
+				{% if S_TOPICS %}{{ lang('NO_TOPICS_DELETED') }}{% else %}{{ lang('NO_POSTS_DELETED') }}{% endif %}
+			{% else %}
+				{% if S_TOPICS %}{{ lang('NO_TOPICS_QUEUE') }}{% else %}{{ lang('NO_POSTS_QUEUE') }}{% endif %}
+			{% endif %}
+		</strong></p>
+	{% endif %}
+
+	</div>
+</div>
+
+{% if loops.postrow|length %}
+	<fieldset class="display-actions">
+		{% if S_RESTORE %}
+		<input class="button1 button button-form-bold" type="submit" name="action[delete]" value="{{ lang('DELETE') }}" />&nbsp;
+		<input class="button1 button button-form" type="submit" name="action[restore]" value="{{ lang('RESTORE') }}" />
+		{% else %}
+		<input class="button1 button button-form-bold" type="submit" name="action[disapprove]" value="{{ lang('DISAPPROVE') }}" />&nbsp;
+		<input class="button1 button button-form" type="submit" name="action[approve]" value="{{ lang('APPROVE') }}" />
+		{% endif %}
+		<div>
+			{% if S_TOPICS %}
+				<a href="#" onclick="marklist('mcp', 'topic_id_list', true); return false;">{{ lang('MARK_ALL') }}</a> :: <a href="#" onclick="marklist('mcp', 'topic_id_list', false); return false;">{{ lang('UNMARK_ALL') }}</a>
+			{% else %}
+				<a href="#" onclick="marklist('mcp', 'post_id_list', true); return false;">{{ lang('MARK_ALL') }}</a> :: <a href="#" onclick="marklist('mcp', 'post_id_list', false); return false;">{{ lang('UNMARK_ALL') }}</a>
+			{% endif %}
+		</div>
+	</fieldset>
+{% endif %}
+</form>
+{% endblock %}

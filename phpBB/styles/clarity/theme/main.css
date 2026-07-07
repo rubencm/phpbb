@@ -1,0 +1,545 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--background: 240 13% 97%;
+		--background-dark: 219 38% 10%;
+		--foreground: 222 47% 11%;
+		--card: 0 0% 100%;
+		--card-foreground: 222 47% 11%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 222 47% 11%;
+		--primary: 221 84% 54%;
+		--primary-foreground: 0 0% 100%;
+		--secondary: 210 40% 96%;
+		--secondary-foreground: 222 47% 11%;
+		--muted: 210 40% 96%;
+		--muted-foreground: 215 16% 47%;
+		--accent: 188 86% 43%;
+		--accent-foreground: 0 0% 100%;
+		--destructive: 0 84% 60%;
+		--destructive-foreground: 0 0% 100%;
+		--border: 218 20% 88%;
+		--input: 218 20% 88%;
+		--ring: 221 84% 54%;
+		--radius: 0.75rem;
+		--scrollbar-thumb: 222 47% 11% / 0.16;
+	}
+
+	.dark {
+		--background: 219 38% 10%;
+		--foreground: 210 40% 98%;
+		--card: 222 47% 14%;
+		--card-foreground: 210 40% 98%;
+		--popover: 222 47% 14%;
+		--popover-foreground: 210 40% 98%;
+		--primary: 221 84% 64%;
+		--primary-foreground: 222 47% 11%;
+		--secondary: 217 33% 18%;
+		--secondary-foreground: 210 40% 98%;
+		--muted: 217 33% 18%;
+		--muted-foreground: 215 20% 65%;
+		--accent: 188 86% 50%;
+		--accent-foreground: 222 47% 11%;
+		--border: 217 33% 24%;
+		--input: 217 33% 24%;
+		--ring: 221 84% 64%;
+		--scrollbar-thumb: 210 40% 98% / 0.24;
+		color-scheme: dark;
+	}
+
+	* {
+		@apply border-border;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
+	body {
+		@apply min-h-screen bg-background font-display text-[15px] leading-relaxed text-foreground antialiased;
+		background-image:
+			radial-gradient(circle at top left, hsl(var(--primary) / 0.1), transparent 24rem),
+			radial-gradient(circle at bottom right, hsl(var(--accent) / 0.1), transparent 26rem);
+	}
+
+	a {
+		@apply transition-colors;
+	}
+
+	img,
+	svg {
+		@apply max-w-full;
+	}
+}
+
+@layer components {
+	.skiplink a {
+		@apply absolute -left-[999px] rounded-full bg-card px-4 py-2 shadow-float;
+	}
+
+	.skiplink a:focus {
+		@apply left-4 top-4 z-50;
+	}
+
+	.navbar .inner,
+	.dropdown,
+	.panel,
+	.forabg,
+	.forumbg,
+	.post,
+	.rules,
+	.stat-block,
+	.cp-mini,
+	.table1,
+	.notification_list,
+	.phpbb_alert {
+		@apply border border-white/60 bg-white/70 shadow-glass backdrop-blur-md;
+	}
+
+	.dark .navbar .inner,
+	.dark .dropdown,
+	.dark .panel,
+	.dark .forabg,
+	.dark .forumbg,
+	.dark .post,
+	.dark .rules,
+	.dark .stat-block,
+	.dark .cp-mini,
+	.dark .table1,
+	.dark .notification_list,
+	.dark .phpbb_alert {
+		@apply border-border bg-card/80;
+	}
+
+	.nav-main,
+	.linklist,
+	.topiclist,
+	.pagination ul,
+	.dropdown-contents,
+	.post-buttons {
+		@apply m-0 list-none p-0;
+	}
+
+	.menu-link,
+	.nav-main > li > a:not(.dropdown-trigger),
+	.dropdown-trigger {
+		@apply inline-flex min-h-9 items-center gap-2 rounded-full px-3 py-2 text-sm font-bold text-muted-foreground hover:bg-primary/10 hover:text-primary;
+	}
+
+	.dropdown {
+		@apply absolute left-0 top-full z-50 mt-2 hidden overflow-hidden rounded-2xl bg-popover p-2 text-popover-foreground shadow-float;
+	}
+
+	.dropdown-visible > .dropdown,
+	.nojs .dropdown-container:hover > .dropdown {
+		@apply block;
+	}
+
+	.dropdown-up > .dropdown,
+	.dropdown-up.dropdown-container > .dropdown {
+		@apply bottom-full top-auto mb-2 mt-0;
+	}
+
+	.dropdown-left > .dropdown,
+	.rightside.dropdown-container > .dropdown,
+	.header-profile.dropdown-container > .dropdown {
+		@apply left-auto right-0;
+	}
+
+	.dropdown-extended {
+		@apply hidden;
+	}
+
+	.dropdown-visible > .dropdown-extended,
+	.nojs .dropdown-container:hover > .dropdown-extended {
+		@apply block;
+	}
+
+	.dropdown-contents a {
+		@apply flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-primary;
+	}
+
+	.badge {
+		@apply inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-xs font-black text-destructive-foreground;
+	}
+
+	.headerbar {
+		@apply overflow-hidden;
+	}
+
+	.site-description {
+		@apply flex items-center gap-5;
+	}
+
+	.c-hero-logo {
+		@apply flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-float;
+	}
+
+	.c-hero-heading {
+		@apply m-0 text-4xl font-black leading-tight text-foreground sm:text-5xl;
+	}
+
+	.c-hero-lead {
+		@apply mt-2 text-base font-medium text-muted-foreground;
+	}
+
+	.page-body {
+		@apply flex-1;
+	}
+
+	.breadcrumbs {
+		@apply mx-auto my-4 flex w-full max-w-5xl flex-wrap items-center gap-2 px-4 text-sm font-semibold text-muted-foreground;
+	}
+
+	.breadcrumbs a {
+		@apply hover:text-primary;
+	}
+
+	.panel,
+	.forabg,
+	.forumbg,
+	.rules,
+	.post,
+	.stat-block {
+		@apply my-4 overflow-hidden rounded-[2rem];
+	}
+
+	.panel > .inner,
+	.forabg > .inner,
+	.forumbg > .inner,
+	.rules > .inner,
+	.post > .inner {
+		@apply p-5;
+	}
+
+	.forum-title,
+	.topic-title,
+	.posting-title,
+	.ucp-title,
+	.faq-title,
+	.login-title {
+		@apply mb-4 text-4xl font-black leading-tight tracking-normal text-foreground sm:text-5xl;
+	}
+
+	.topiclist > .header {
+		@apply border-b border-border/70 text-xs font-black uppercase tracking-wider text-muted-foreground;
+	}
+
+	.topiclist .row {
+		@apply my-3 rounded-[1.75rem] border border-white/70 bg-white/75 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-float;
+	}
+
+	.dark .topiclist .row {
+		@apply border-border bg-card/80;
+	}
+
+	.row-item {
+		@apply grid items-center gap-4 p-4 md:grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_minmax(10rem,14rem)];
+	}
+
+	.row-item dt {
+		@apply flex min-w-0 items-center gap-4;
+	}
+
+	.row-item dd {
+		@apply m-0 text-sm text-muted-foreground;
+	}
+
+	.row-item-link {
+		@apply flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-secondary text-primary shadow-lg;
+	}
+
+	.row-item-link.unread {
+		@apply bg-primary text-primary-foreground;
+	}
+
+	.forumtitle,
+	.topictitle {
+		@apply inline-block text-base font-black leading-snug text-foreground hover:text-primary;
+	}
+
+	.forum-desc,
+	.forum-mods,
+	.forum-subs,
+	.topic-poster,
+	.author {
+		@apply text-sm text-muted-foreground;
+	}
+
+	.action-bar {
+		@apply my-5 flex flex-col gap-3 rounded-[1.5rem] border border-white/60 bg-white/65 p-3 shadow-float backdrop-blur-md sm:flex-row sm:flex-wrap sm:items-center sm:justify-between;
+	}
+
+	.button,
+	input.button1,
+	input.button2,
+	a.button1,
+	a.button2 {
+		@apply inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-transparent px-4 py-2 text-sm font-black transition-colors;
+	}
+
+	.button,
+	.button1,
+	.button-form-bold {
+		@apply bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90;
+	}
+
+	.button-secondary,
+	.button2,
+	.button-form {
+		@apply bg-secondary text-secondary-foreground shadow-none hover:bg-secondary/80;
+	}
+
+	.button-icon-only {
+		@apply h-10 w-10 p-0;
+	}
+
+	.inputbox,
+	input[type="text"],
+	input[type="password"],
+	input[type="email"],
+	input[type="search"],
+	input[type="url"],
+	select,
+	textarea {
+		@apply rounded-2xl border border-input bg-card px-4 py-2 text-sm font-semibold text-foreground shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
+	}
+
+	textarea {
+		@apply min-h-36 w-full leading-7;
+	}
+
+	fieldset,
+	dl,
+	dd,
+	dt {
+		@apply m-0;
+	}
+
+	.fields1 dl,
+	.fields2 dl {
+		@apply mb-4 grid gap-2;
+	}
+
+	.fields1 dt,
+	.fields2 dt {
+		@apply text-sm font-black text-muted-foreground;
+	}
+
+	.content {
+		@apply text-base leading-8 text-foreground;
+	}
+
+	.content p {
+		@apply mb-4;
+	}
+
+	.content blockquote,
+	blockquote {
+		@apply my-4 rounded-r-2xl border-l-4 border-primary/40 bg-primary/10 p-4 text-muted-foreground;
+	}
+
+	.codebox {
+		@apply overflow-hidden rounded-2xl bg-slate-950 text-slate-200;
+	}
+
+	.codebox p {
+		@apply m-0 bg-white/10 px-4 py-2;
+	}
+
+	.codebox code,
+	.codebox pre {
+		@apply block overflow-auto p-4 font-mono;
+	}
+
+	.post > .inner {
+		@apply grid gap-6 md:grid-cols-[12rem_minmax(0,1fr)];
+	}
+
+	.postprofile {
+		@apply text-sm text-muted-foreground;
+	}
+
+	.postprofile dt {
+		@apply mb-4 flex flex-col items-start gap-2;
+	}
+
+	.avatar-container,
+	.avatar {
+		@apply overflow-hidden rounded-full;
+	}
+
+	.avatar img,
+	.avatar-container img {
+		@apply block h-16 w-16 rounded-full border-4 border-white object-cover shadow-lg;
+	}
+
+	.profile-rank {
+		@apply inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-wide text-primary;
+	}
+
+	.postbody {
+		@apply min-w-0 text-foreground;
+	}
+
+	.postbody h3 {
+		@apply mb-3 text-sm font-black uppercase tracking-wider text-foreground;
+	}
+
+	.post-buttons {
+		@apply mb-4 flex flex-wrap justify-end gap-2;
+	}
+
+	.signature {
+		@apply mt-6 border-t border-border pt-4 text-sm italic text-muted-foreground;
+	}
+
+	.pagination {
+		@apply flex flex-wrap items-center gap-2 text-sm font-bold text-muted-foreground;
+	}
+
+	.pagination ul {
+		@apply inline-flex items-center gap-1 rounded-full bg-white/70 p-1 shadow-glass;
+	}
+
+	.pagination li span,
+	.pagination li a {
+		@apply inline-flex min-h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-black hover:bg-secondary hover:text-primary;
+	}
+
+	.pagination li.active span {
+		@apply bg-primary text-primary-foreground;
+	}
+
+	.tabs ul {
+		@apply flex flex-wrap gap-2;
+	}
+
+	.tabs a,
+	.navigation a {
+		@apply block rounded-2xl px-3 py-2 text-sm font-bold text-muted-foreground hover:bg-secondary hover:text-primary;
+	}
+
+	.activetab a,
+	.active-subsection a {
+		@apply bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground;
+	}
+
+	.stat-block h3 {
+		@apply mb-3 text-sm font-black uppercase tracking-wider text-muted-foreground;
+	}
+
+	.stat-block p {
+		@apply text-sm leading-7 text-muted-foreground;
+	}
+
+	.pollbar1,
+	.pollbar2,
+	.pollbar3,
+	.pollbar4,
+	.pollbar5 {
+		@apply rounded-full bg-primary px-3 py-1 text-xs font-black text-primary-foreground;
+	}
+
+	.resultbar {
+		@apply rounded-full bg-secondary p-1;
+	}
+
+	.attachbox,
+	.notice,
+	.successbox,
+	.errorbox {
+		@apply my-4 rounded-2xl border border-border bg-secondary p-4;
+	}
+
+	.error,
+	.errorbox {
+		@apply font-bold text-destructive;
+	}
+
+	.responsive-show {
+		@apply hidden;
+	}
+}
+
+@layer utilities {
+	.dark .bg-white\/80,
+	.dark .bg-white\/75,
+	.dark .bg-white\/70,
+	.dark .bg-white\/65,
+	.dark .bg-white\/60 {
+		background-color: hsl(var(--card) / 0.82);
+	}
+
+	.dark .bg-slate-50,
+	.dark .bg-slate-50\/80,
+	.dark .bg-slate-100,
+	.dark .bg-slate-100\/80 {
+		background-color: hsl(var(--secondary) / 0.82);
+	}
+
+	.dark .text-slate-950,
+	.dark .text-slate-900,
+	.dark .text-slate-800,
+	.dark .text-slate-700 {
+		color: hsl(var(--foreground));
+	}
+
+	.dark .text-slate-600,
+	.dark .text-slate-500,
+	.dark .text-slate-400 {
+		color: hsl(var(--muted-foreground));
+	}
+
+	.dark .border-white\/70,
+	.dark .border-white\/60,
+	.dark .border-slate-200\/70,
+	.dark .border-slate-200 {
+		border-color: hsl(var(--border));
+	}
+
+	.custom-scrollbar::-webkit-scrollbar,
+	::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-track,
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-thumb,
+	::-webkit-scrollbar-thumb {
+		background-color: hsl(var(--scrollbar-thumb));
+		border-radius: 999px;
+	}
+}
+
+@media (max-width: 850px) {
+	.row-item {
+		@apply grid-cols-1;
+	}
+
+	.row-item dd {
+		@apply hidden;
+	}
+
+	.post > .inner {
+		@apply grid-cols-1;
+	}
+
+	.postprofile dt {
+		@apply flex-row items-center;
+	}
+
+	.responsive-show {
+		display: block !important;
+	}
+
+	.responsive-hide {
+		display: none !important;
+	}
+}

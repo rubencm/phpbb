@@ -1,0 +1,131 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+<h2>{{ lang('TITLE') }}</h2>
+
+<form id="ucp" method="post" action="{{ S_UCP_ACTION }}">
+
+<div class="panel">
+	<div class="inner">
+
+	{% if ERROR_MESSAGE %}<p class="error">{{ ERROR_MESSAGE }}</p>{% endif %}
+	{% if NOTIFICATION_MESSAGE %}<p class="error">{{ NOTIFICATION_MESSAGE }}</p>{% endif %}
+
+	<h3>{{ lang('DEFINED_RULES') }}</h3>
+
+	<ol class="def-rules">
+	{% for rule in loops.rule %}
+		<li><div class="right-box"><input type="submit" name="delete_rule[{{ rule.RULE_ID }}]" value="{{ lang('DELETE_RULE') }}" class="button1 button button-form-bold" /></div><strong>{{ lang('IF') }}</strong> {{ rule.CHECK }} <em>{{ rule.RULE }}</em> {% if rule.STRING %}<strong>{{ rule.STRING }}</strong> | {% endif %}{{ rule.ACTION }}{% if rule.FOLDER %}{{ lang('COLON') }} {{ rule.FOLDER }}{% endif %}<div style="clear: both;"></div></li>
+	{% else %}
+		<li><strong>{{ lang('NO_RULES_DEFINED') }}</strong></li>
+	{% endfor %}
+	</ol>
+
+	<h3>{{ lang('ADD_NEW_RULE') }}</h3>
+
+	<fieldset class="fields2">
+
+	{% if S_CHECK_DEFINED %}
+		<dl>
+			<dt><label{% if S_CHECK_SELECT %} for="check_option"{% endif %}>{{ lang('IF') }}{{ lang('COLON') }}</label></dt>
+			<dd>
+				{% if S_CHECK_SELECT %}<select name="check_option" id="check_option">{{ S_CHECK_OPTIONS }}</select> <input type="submit" name="next" value="{{ lang('NEXT_STEP') }}" class="button1 button button-form-bold" />{% else %}{{ CHECK_CURRENT }}<input type="hidden" name="check_option" value="{{ CHECK_OPTION }}" />{% endif %}
+			</dd>
+		</dl>
+	{% endif %}
+
+	{% if S_RULE_DEFINED %}
+		<dl>
+			<dt>{% if S_RULE_SELECT %}<input type="submit" name="back[rule]" value="{{ lang('PREVIOUS_STEP') }}" class="button1 button button-form-bold" />{% else %}<label>&nbsp;</label>{% endif %}</dt>
+			<dd>{% if S_RULE_SELECT %}<select name="rule_option" id="rule_option">{{ S_RULE_OPTIONS }}</select> <input type="submit" name="next" value="{{ lang('NEXT_STEP') }}" class="button1 button button-form-bold" />{% else %}<em>{{ RULE_CURRENT }}</em><input type="hidden" name="rule_option" value="{{ RULE_OPTION }}" />{% endif %}</dd>
+		</dl>
+	{% endif %}
+
+	{% if S_COND_DEFINED %}
+		{% if S_COND_SELECT or COND_CURRENT %}
+			<dl>
+				<dt>{% if S_COND_SELECT %}<input type="submit" name="back[cond]" value="{{ lang('PREVIOUS_STEP') }}" class="button1 button button-form-bold" />{% else %}<label>&nbsp;</label>{% endif %}</dt>
+				<dd>
+					{% if S_COND_SELECT %}
+						{% if S_TEXT_CONDITION %}
+							<input type="text" name="rule_string" value="{{ CURRENT_STRING }}" class="inputbox medium" maxlength="250" />
+						{% elseif S_USER_CONDITION %}
+							<input type="text" name="rule_string" value="{{ CURRENT_STRING }}" class="inputbox tiny" />&nbsp;<span>[ <a href="{{ U_FIND_USERNAME }}" onclick="find_username(this.href); return false;">{{ lang('FIND_USERNAME') }}</a> ]</span>
+						{% elseif S_GROUP_CONDITION %}
+							<input type="hidden" name="rule_string" value="{{ CURRENT_STRING }}" />{% if S_GROUP_OPTIONS %}<select name="rule_group_id">{{ S_GROUP_OPTIONS }}</select>{% else %}{{ lang('NO_GROUPS') }}{% endif %}
+						{% endif %}
+						<input type="submit" name="next" value="{{ lang('NEXT_STEP') }}" class="button1 button button-form-bold" />
+					{% else %}
+						<strong>{{ COND_CURRENT }}</strong><input type="hidden" name="rule_string" value="{{ CURRENT_STRING }}" /><input type="hidden" name="rule_user_id" value="{{ CURRENT_USER_ID }}" /><input type="hidden" name="rule_group_id" value="{{ CURRENT_GROUP_ID }}" />
+					{% endif %}
+				</dd>
+			</dl>
+		{% endif %}
+		<input type="hidden" name="cond_option" value="{{ COND_OPTION }}" />
+	{% endif %}
+
+
+	{% if NONE_CONDITION %}<input type="hidden" name="cond_option" value="none" />{% endif %}
+
+	{% if S_ACTION_DEFINED %}
+		<dl>
+			<dt>{% if S_ACTION_SELECT %}<input type="submit" name="back[action]" value="{{ lang('PREVIOUS_STEP') }}" class="button1 button button-form-bold" />{% else %}<label>&nbsp;</label>{% endif %}</dt>
+			<dd>{% if S_ACTION_SELECT %} <select name="action_option">{{ S_ACTION_OPTIONS }}</select> <input type="submit" name="add_rule" value="{{ lang('ADD_RULE') }}" class="button1 button button-form" />{% else %}{{ ACTION_CURRENT }}<input type="hidden" name="action_option" value="{{ ACTION_OPTION }}" />{% endif %}</dd>
+		</dl>
+	{% endif %}
+
+	</fieldset>
+
+	<h3>{{ lang('FOLDER_OPTIONS') }}</h3>
+
+	<fieldset class="fields2">
+
+	{% if not S_MAX_FOLDER_ZERO %}
+	<dl>
+		<dt><label for="foldername">{{ lang('ADD_FOLDER') }}{{ lang('COLON') }}</label></dt>
+		<dd>{% if S_MAX_FOLDER_REACHED %}{{ lang('MAX_FOLDER_REACHED') }}{% else %}<input type="text" class="inputbox medium" name="foldername" id="foldername" size="30" maxlength="30" /> <input class="button1 button button-form-bold" type="submit" name="addfolder" value="{{ lang('ADD') }}" />{% endif %}</dd>
+	</dl>
+	{% if S_FOLDER_OPTIONS %}<hr class="dashed" />{% endif %}
+	{% endif %}
+
+
+
+	{% if S_FOLDER_OPTIONS %}
+		<dl>
+			<dt><label for="rename_folder_id">{{ lang('RENAME_FOLDER') }}{{ lang('COLON') }}</label></dt>
+			<dd><select name="rename_folder_id" id="rename_folder_id">{{ S_FOLDER_OPTIONS }}</select></dd>
+			<dt><label for="new_folder_name">{{ lang('NEW_FOLDER_NAME') }}{{ lang('COLON') }}</label></dt>
+			<dd><input type="text" class="inputbox tiny" name="new_folder_name" id="new_folder_name" maxlength="30" /> <input class="button1 button button-form-bold" type="submit" name="rename_folder" value="{{ lang('RENAME') }}" /></dd>
+		</dl>
+		<hr class="dashed" />
+		<dl>
+			<dt><label for="remove_folder_id">{{ lang('REMOVE_FOLDER') }}{{ lang('COLON') }}</label></dt>
+			<dd><select name="remove_folder_id" id="remove_folder_id">{{ S_FOLDER_OPTIONS }}</select></dd>
+			<dd style="margin-top: 3px;"><label for="remove_action1"><input type="radio" name="remove_action" id="remove_action1" value="1" checked="checked" /> {{ lang('MOVE_DELETED_MESSAGES_TO') }}{{ lang('COLON') }}</label> <select name="move_to">{{ S_TO_FOLDER_OPTIONS }}</select></dd>
+			<dd style="margin-top: 3px;"><label for="remove_action2"><input type="radio" name="remove_action" id="remove_action2" value="2" /> {{ lang('DELETE_MESSAGES_IN_FOLDER') }}</label></dd>
+			<dd style="margin-top: 3px;"><input class="button1 button button-form-bold" type="submit" name="remove_folder" value="{{ lang('REMOVE') }}" /></dd>
+		</dl>
+	{% endif %}
+
+	<hr class="dashed" />
+
+	<dl>
+		<dt><label for="full_action1">{{ lang('IF_FOLDER_FULL') }}{{ lang('COLON') }}</label></dt>
+		<dd style="margin-top: 3px;"><label for="full_action1"><input type="radio" name="full_action" id="full_action1" value="1"{{ S_DELETE_CHECKED }} /> {{ lang('DELETE_OLDEST_MESSAGES') }}</label></dd>
+		<dd style="margin-top: 3px;"><label for="full_action2"><input type="radio" name="full_action" id="full_action2" value="2"{{ S_MOVE_CHECKED }} /> {{ lang('MOVE_TO_FOLDER') }}{{ lang('COLON') }}</label> <select name="full_move_to">{{ S_FULL_FOLDER_OPTIONS }}</select></dd>
+		<dd style="margin-top: 3px;"><label for="full_action3" style="white-space:normal;"><input type="radio" name="full_action" id="full_action3" value="3"{{ S_HOLD_CHECKED }} /> {{ lang('HOLD_NEW_MESSAGES') }}</label></dd>
+	</dl>
+
+
+	<dl>
+		<dt><label>{{ lang('DEFAULT_ACTION') }}{{ lang('COLON') }}</label><br /><span>{{ lang('DEFAULT_ACTION_EXPLAIN') }}</span></dt>
+		<dd>{{ DEFAULT_ACTION }}</dd>
+		<dd><input class="button1 button button-form-bold" type="submit" name="fullfolder" value="{{ lang('CHANGE') }}" /></dd>
+	</dl>
+	</fieldset>
+
+	</div>
+	{{ S_FORM_TOKEN }}
+</div>
+</form>
+{% endblock %}

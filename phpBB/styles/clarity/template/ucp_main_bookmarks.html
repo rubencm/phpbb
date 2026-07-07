@@ -1,0 +1,144 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+<form id="ucp" method="post" action="{{ S_UCP_ACTION }}"{{ S_FORM_ENCTYPE }}>
+
+<h2>{{ lang('TITLE') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+
+	<p>{{ lang('BOOKMARKS_EXPLAIN') }}</p>
+
+{% if S_NO_DISPLAY_BOOKMARKS %}
+	<p class="error">{{ lang('BOOKMARKS_DISABLED') }}</p>
+{% else %}
+
+{% if loops.topicrow|length %}
+	<ul class="topiclist missing-column">
+		<li class="header">
+			<dl class="row-item">
+				<dt><div class="list-inner">{{ lang('BOOKMARKS') }}</div></dt>
+				<dd class="lastpost"><span>{{ lang('LAST_POST') }}</span></dd>
+				<dd class="mark">{{ lang('MARK') }}</dd>
+			</dl>
+		</li>
+	</ul>
+	<ul class="topiclist cplist missing-column">
+
+	{% for topicrow in loops.topicrow %}
+		<li class="row{% if topicrow.S_TOPIC_REPORTED %} reported{% elseif topicrow.S_ROW_COUNT is odd %} bg1{% else %} bg2{% endif %}">
+			{% if topicrow.S_DELETED_TOPIC %}
+				<dl>
+					<dt><div class="list-inner"><strong>{{ lang('DELETED_TOPIC') }}</strong></div></dt>
+					<dd class="lastpost"><span>&nbsp;</span></dd>
+					<dd class="mark"><input type="checkbox" name="t[{{ topicrow.TOPIC_ID }}]" id="t{{ topicrow.TOPIC_ID }}" /></dd>
+				</dl>
+			{% else %}
+			<dl class="row-item">
+				<dt>
+					<a class="row-item-link{% if topicrow.S_UNREAD_TOPIC %} unread{% else %} read{% endif %}" href="{{ topicrow.U_NEWEST_POST }}" title="{{ topicrow.TOPIC_FOLDER_IMG_ALT }}">
+						{{ Icon('svg', {
+							'globe' : topicrow.S_POST_GLOBAL,
+							'bullhorn' : topicrow.S_POST_ANNOUNCE,
+							'thumbtack' : topicrow.S_POST_STICKY,
+							'lock' : topicrow.S_TOPIC_LOCKED,
+							'arrow-right-bold' : topicrow.S_TOPIC_MOVED,
+							'fire' : topicrow.S_TOPIC_HOT,
+							'file-document-outline' : true,
+						}, '', true, 'c-forum-row-icon') }}
+					</a>
+					{% if lang(topicrow.TOPIC_AUTHOR) == S_USERNAME %}
+						<span class="row-item-link-mine"></span>
+					{% endif%}
+					{% if topicrow.TOPIC_ICON_IMG and S_TOPIC_ICONS %}
+						<img class="row-item-sub" src="{{ T_ICONS_PATH }}{{ topicrow.TOPIC_ICON_IMG }}" alt="">
+					{% endif %}
+					<div class="list-inner">
+						{% if topicrow.S_UNREAD_TOPIC %}
+							<a href="{{ topicrow.U_NEWEST_POST }}" class="topictitle unread">{{ topicrow.TOPIC_TITLE }}</a>
+						{% else %}
+							<a href="{{ topicrow.U_VIEW_TOPIC }}" class="topictitle">{{ topicrow.TOPIC_TITLE }}</a>
+						{% endif %}
+						{% if topicrow.S_TOPIC_UNAPPROVED or topicrow.S_POSTS_UNAPPROVED %}
+							<a href="{{ topicrow.U_MCP_QUEUE }}" title="{{ lang('TOPIC_UNAPPROVED') }}">
+								{{ Icon('font', 'circle-question', lang('TOPIC_UNAPPROVED'), true, 'fas c-unapproved-icon') }}
+							</a>
+						{% endif %}
+						{% if topicrow.S_TOPIC_REPORTED %}
+							<a href="{{ topicrow.U_MCP_REPORT }}" title="{{ lang('TOPIC_REPORTED') }}">
+								{{ Icon('font', 'triangle-exclamation', lang('TOPIC_REPORTED'), true, 'fas c-topic-reported-icon') }}
+							</a>
+						{% endif %}
+						<br />
+						{% EVENT ucp_main_bookmarks_topic_title_after %}
+						{% if topicrow.pagination|length %}
+						<div class="pagination">
+							<ul>
+								{% for pagination in topicrow.pagination %}
+									{% if pagination.S_IS_PREV %}
+									{% elseif pagination.S_IS_CURRENT %}
+										<li class="active"><span>{{ pagination.PAGE_NUMBER }}</span></li>
+									{% elseif pagination.S_IS_ELLIPSIS %}
+										<li class="ellipsis"><span>{{ lang('ELLIPSIS') }}</span></li>
+									{% elseif pagination.S_IS_NEXT %}
+									{% else %}
+										<li><a class="button" href="{{ pagination.PAGE_URL }}" role="button">{{ pagination.PAGE_NUMBER }}</a></li>
+									{% endif %}
+								{% endfor %}
+							</ul>
+						</div>
+						{% endif %}
+						<div class="responsive-hide">
+							{% if topicrow.ATTACH_ICON_IMG %}{{ Icon('font', 'paperclip', '', true) }} {% endif %}
+							{{ lang('POST_BY_AUTHOR') }} {{ topicrow.TOPIC_AUTHOR_FULL }} &raquo; {{ topicrow.FIRST_POST_TIME }}
+						</div>
+						<div class="responsive-show" style="display: none;">
+							{% if topicrow.ATTACH_ICON_IMG %}{{ Icon('font', 'paperclip', '', true) }} {% endif %}
+							{{ lang('LAST_POST') }} {{ lang('POST_BY_AUTHOR') }} {{ topicrow.LAST_POST_AUTHOR_FULL }} &laquo;
+							<a href="{{ topicrow.U_LAST_POST }}" title="{{ lang('GOTO_LAST_POST') }}">{{ topicrow.LAST_POST_TIME }}</a>
+						</div>
+					</div>
+				</dt>
+				<dd class="lastpost"><span><dfn>{{ lang('LAST_POST') }} </dfn>{{ lang('POST_BY_AUTHOR') }} {{ topicrow.LAST_POST_AUTHOR_FULL }}
+					<a href="{{ topicrow.U_LAST_POST }}" title="{{ lang('GOTO_LAST_POST') }}">
+						{{ Icon('font', 'arrow-up-right-from-square', VIEW_LATEST_POST, true, 'fas c-last-post-icon') }}
+					</a>
+					<br />{{ topicrow.LAST_POST_TIME }}</span>
+				</dd>
+				<dd class="mark"><input type="checkbox" name="t[{{ topicrow.TOPIC_ID }}]" id="t{{ topicrow.TOPIC_ID }}" /></dd>
+			</dl>
+			{% endif %}
+		</li>
+	{% endfor %}
+	</ul>
+
+	<div class="action-bar bar-bottom">
+		<div class="pagination">
+			{{ TOTAL_TOPICS }}
+			{% if loops.pagination|length %}
+				{% include 'pagination.html' %}
+			{% else %}
+				 &bull; {{ PAGE_NUMBER }}
+			{% endif %}
+		</div>
+	</div>
+
+{% else %}
+	<p><strong>{{ lang('NO_BOOKMARKS') }}</strong></p>
+{% endif %}
+
+{% endif %}
+
+	</div>
+</div>
+
+{% if loops.topicrow|length and not S_NO_DISPLAY_BOOKMARKS %}
+	<fieldset class="display-actions">
+		<input type="submit" name="unbookmark" value="{{ lang('REMOVE_BOOKMARK_MARKED') }}" class="button1 button button-form-bold" />
+		<div><a href="#" onclick="marklist('ucp', '', true); return false;">{{ lang('MARK_ALL') }}</a> &bull; <a href="#" onclick="marklist('ucp', '', false); return false;">{{ lang('UNMARK_ALL') }}</a></div>
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+{% endif %}
+</form>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% EVENT index_body_markforums_before %}
+{% EVENT index_body_markforums_after %}
+{% EVENT index_body_forumlist_body_before %}
+
+{% include 'forumlist_body.html' %}
+
+{% EVENT index_body_forumlist_body_after %}
+
+{% if not S_USER_LOGGED_IN and not S_IS_BOT %}
+	<form method="post" action="{{ S_LOGIN_ACTION }}" class="headerspace my-6 rounded-[2rem] border border-white/60 bg-white/65 p-5 shadow-float backdrop-blur-md">
+	<h3 class="mb-4 text-lg font-black text-slate-950"><a class="hover:text-primary" href="{{ U_LOGIN_LOGOUT }}">{{ lang('LOGIN_LOGOUT') }}</a>{% if S_REGISTER_ENABLED %}&nbsp; &bull; &nbsp;<a class="text-primary hover:text-primary/80" href="{{ U_REGISTER }}">{{ lang('REGISTER') }}</a>{% endif %}</h3>
+		<fieldset class="quick-login flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+			<label class="grid gap-1 text-xs font-black uppercase tracking-wider text-slate-400" for="username"><span>{{ lang('USERNAME') }}{{ lang('COLON') }}</span> <input type="text" tabindex="1" name="username" id="username" size="10" class="inputbox min-h-11 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm focus:border-primary focus:ring-primary/20" title="{{ lang('USERNAME') }}" autocomplete="username" /></label>
+			<label class="grid gap-1 text-xs font-black uppercase tracking-wider text-slate-400" for="password"><span>{{ lang('PASSWORD') }}{{ lang('COLON') }}</span> <input type="password" tabindex="2" name="password" id="password" size="10" class="inputbox min-h-11 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm focus:border-primary focus:ring-primary/20" title="{{ lang('PASSWORD') }}" autocomplete="current-password" /></label>
+			{% if U_SEND_PASSWORD %}
+				<a class="text-sm font-bold text-slate-500 hover:text-primary" href="{{ U_SEND_PASSWORD }}">{{ lang('FORGOT_PASS') }}</a>
+			{% endif %}
+			{% if S_AUTOLOGIN_ENABLED %}
+				<span class="responsive-hide hidden text-slate-300 sm:inline">|</span> <label class="inline-flex items-center gap-2 text-sm font-bold text-slate-500" for="autologin">{{ lang('LOG_ME_IN') }} <input class="rounded border-slate-300 text-primary focus:ring-primary/20" type="checkbox" tabindex="4" name="autologin" id="autologin" checked /></label>
+			{% endif %}
+			<input type="submit" tabindex="5" name="login" value="{{ lang('LOGIN') }}" class="button1 button button-form-bold min-h-11 rounded-full bg-primary px-5 py-2 text-sm font-black text-white shadow-lg shadow-primary/25 hover:bg-primary/90" />
+			{{ S_LOGIN_REDIRECT }}
+			{{ S_FORM_TOKEN_LOGIN }}
+		</fieldset>
+	</form>
+{% endif %}
+
+{% EVENT index_body_stat_blocks_before %}
+
+<div class="grid gap-4 md:grid-cols-3">
+{% if S_DISPLAY_ONLINE_LIST %}
+	<div class="stat-block online-list rounded-[2rem] border border-white/60 bg-white/65 p-5 shadow-float backdrop-blur-md md:col-span-2">
+		{% if U_VIEWONLINE %}<h3 class="mb-3 text-sm font-black uppercase tracking-wider text-slate-400"><a class="hover:text-primary" href="{{ U_VIEWONLINE }}">{{ lang('WHO_IS_ONLINE') }}</a></h3>{% else %}<h3 class="mb-3 text-sm font-black uppercase tracking-wider text-slate-400">{{ lang('WHO_IS_ONLINE') }}</h3>{% endif %}
+		<p class="text-sm leading-6 text-slate-600">
+			{% EVENT index_body_block_online_prepend %}
+			{{ TOTAL_USERS_ONLINE }} ({{ lang('ONLINE_EXPLAIN') }})<br />{{ RECORD_USERS }}<br />
+			{% if U_VIEWONLINE %}
+				<br />{{ LOGGED_IN_USER_LIST }}
+				{% if LEGEND|length > 0 %}
+					{% apply spaceless %}
+						<br>
+						<em>
+							{{ lang('LEGEND') ~ lang('COLON') }}
+							{% for group in LEGEND %}
+								{% if group.GROUP_URL %}
+									<a style="color:#{{ group.GROUP_COLOR }}" href="{{ group.GROUP_URL }}" alt="{{ group.GROUP_NAME }}">{{ group.GROUP_NAME }}</a>{% if not loop.last %}, {% endif %}
+								{% else %}
+									<span style="color:#{{ group.GROUP_COLOR }}">{{ group.GROUP_NAME }}</span>{% if not loop.last %}, {% endif %}
+								{% endif %}
+							{% endfor %}
+						</em>
+					{% endapply %}
+				{% endif %}
+			{% endif %}
+			{% EVENT index_body_block_online_append %}
+		</p>
+	</div>
+{% endif %}
+
+{% EVENT index_body_birthday_block_before %}
+
+{% if S_DISPLAY_BIRTHDAY_LIST %}
+	<div class="stat-block birthday-list rounded-[2rem] border border-white/60 bg-white/65 p-5 shadow-float backdrop-blur-md">
+		<h3 class="mb-3 text-sm font-black uppercase tracking-wider text-slate-400">{{ lang('BIRTHDAYS') }}</h3>
+		<p class="text-sm leading-6 text-slate-600">
+			{% EVENT index_body_block_birthday_prepend %}
+			{% if loops.birthdays|length %}{{ lang('CONGRATULATIONS') }}{{ lang('COLON') }} <strong>{% for birthdays in loops.birthdays %}{{ birthdays.USERNAME }}{% if birthdays.AGE != '' %} ({{ birthdays.AGE }}){% endif %}{% if not birthdays.S_LAST_ROW %}, {% endif %}{% endfor %}</strong>{% else %}{{ lang('NO_BIRTHDAYS') }}{% endif %}
+			{% EVENT index_body_block_birthday_append %}
+		</p>
+	</div>
+{% endif %}
+
+{% if NEWEST_USER %}
+	<div class="stat-block statistics rounded-[2rem] border border-white/60 bg-white/65 p-5 shadow-float backdrop-blur-md md:col-span-3">
+		<h3 class="mb-3 text-sm font-black uppercase tracking-wider text-slate-400">{{ lang('STATISTICS') }}</h3>
+		<p class="text-sm leading-6 text-slate-600">
+			{% EVENT index_body_block_stats_prepend %}
+			{{ TOTAL_POSTS }} &bull; {{ TOTAL_TOPICS }} &bull; {{ TOTAL_USERS }} &bull; {{ NEWEST_USER }}
+			{% EVENT index_body_block_stats_append %}
+		</p>
+	</div>
+{% endif %}
+</div>
+
+{% EVENT index_body_stat_blocks_after %}
+{% endblock %}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html class="light" dir="{{ S_CONTENT_DIRECTION }}" lang="{{ S_USER_LANG }}">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="{{ SITE_SHORTNAME }}">
+<meta name="mobile-web-app-capable" content="yes">
+{{ META }}
+<title>{% if UNREAD_NOTIFICATIONS_COUNT %}({{ UNREAD_NOTIFICATIONS_COUNT }}) {% endif %}{% if not S_VIEWTOPIC and not S_VIEWFORUM %}{{ SITENAME }} - {% endif %}{% if S_IN_MCP %}{{ lang('MCP') }} - {% elseif S_IN_UCP %}{{ lang('UCP') }} - {% endif %}{{ PAGE_TITLE }}{% if S_VIEWTOPIC or S_VIEWFORUM %} - {{ SITENAME }}{% endif %}</title>
+<script>
+	(function() {
+		var theme = 'light';
+
+		try {
+			theme = localStorage.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+		} catch (e) {
+			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+
+		document.documentElement.classList.toggle('dark', theme === 'dark');
+		document.documentElement.classList.toggle('light', theme !== 'dark');
+		document.documentElement.dataset.theme = theme;
+	})();
+</script>
+{% if S_ENABLE_FEEDS %}
+	{% if S_ENABLE_FEEDS_OVERALL %}<link rel="alternate" type="application/atom+xml" title="{{ lang('FEED') }} - {{ SITENAME }}" href="{{ path('phpbb_feed_index') }}">{% endif %}
+	{% if S_ENABLE_FEEDS_NEWS %}<link rel="alternate" type="application/atom+xml" title="{{ lang('FEED') }} - {{ lang('FEED_NEWS') }}" href="{{ path('phpbb_feed_news') }}">{% endif %}
+	{% if S_ENABLE_FEEDS_FORUMS %}<link rel="alternate" type="application/atom+xml" title="{{ lang('FEED') }} - {{ lang('ALL_FORUMS') }}" href="{{ path('phpbb_feed_forums') }}">{% endif %}
+	{% if S_ENABLE_FEEDS_TOPICS %}<link rel="alternate" type="application/atom+xml" title="{{ lang('FEED') }} - {{ lang('FEED_TOPICS_NEW') }}" href="{{ path('phpbb_feed_topics') }}">{% endif %}
+	{% if S_ENABLE_FEEDS_TOPICS_ACTIVE %}<link rel="alternate" type="application/atom+xml" title="{{ lang('FEED') }} - {{ lang('FEED_TOPICS_ACTIVE') }}" href="{{ path('phpbb_feed_topics_active') }}">{% endif %}
+	{% if S_ENABLE_FEEDS_FORUM and S_FORUM_ID %}<link rel="alternate" type="application/atom+xml" title="{{ lang('FEED') }} - {{ lang('FORUM') }} - {{ FORUM_NAME }}" href="{{ path('phpbb_feed_forum', { forum_id : S_FORUM_ID } ) }}">{% endif %}
+	{% if S_ENABLE_FEEDS_TOPIC and S_TOPIC_ID %}<link rel="alternate" type="application/atom+xml" title="{{ lang('FEED') }} - {{ lang('TOPIC') }} - {{ TOPIC_TITLE }}" href="{{ path('phpbb_feed_topic', { topic_id : S_TOPIC_ID } ) }}">{% endif %}
+	{% EVENT overall_header_feeds %}
+{% endif %}
+
+{% if U_CANONICAL %}
+	<link rel="canonical" href="{{ U_CANONICAL }}">
+{% endif %}
+
+<!--
+	phpBB style name: clarity
+	Original author:  Ruben Calvo ( https://phpbb.com )
+-->
+
+<link href="{{ T_FONT_AWESOME_LINK }}" rel="stylesheet">
+<link href="{{ T_STYLESHEET_LINK }}" rel="stylesheet">
+<link href="{{ T_STYLESHEET_LANG_LINK }}" rel="stylesheet">
+
+{% if S_PLUPLOAD %}
+	<link href="{{ T_THEME_PATH }}/plupload.css?assets_version={{ T_ASSETS_VERSION }}" rel="stylesheet">
+{% endif %}
+
+{% if S_COOKIE_NOTICE %}
+	<link href="{{ T_ASSETS_PATH }}/cookieconsent/cookieconsent.min.css?assets_version={{ T_ASSETS_VERSION }}" rel="stylesheet">
+{% endif %}
+
+<link rel="manifest" href="{{ U_MANIFEST }}" crossorigin="use-credentials">
+
+{% EVENT overall_header_head_append %}
+
+{{ definition.STYLESHEETS }}
+
+{% EVENT overall_header_stylesheets_after %}
+
+{% if NOTIFICATIONS_WEBPUSH_ENABLE %}
+	{% include 'ucp_notifications_webpush.html' %}
+{% endif %}
+
+</head>
+<body id="phpbb" class="nojs notouch section-{{ SCRIPT_NAME }} {{ S_CONTENT_DIRECTION }} {{ BODY_CLASS }} bg-background font-display text-foreground overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+
+{% EVENT overall_header_body_before %}
+
+<div id="wrap" class="wrap relative flex min-h-screen w-full flex-col">
+	<a id="top" class="top-anchor" accesskey="t"></a>
+	<div id="page-header" class="page-header">
+		{% EVENT overall_header_navbar_before %}
+
+		<div class="headerbar" role="banner">
+
+			{% include 'navbar_header.html' %}
+		{% EVENT overall_header_headerbar_before %}
+			<div class="inner mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 pb-8 pt-10">
+
+			<hgroup id="site-description" class="site-description c-hero">
+				<a id="logo" class="c-hero-logo" href="{% if U_SITE_HOME %}{{ U_SITE_HOME }}{% else %}{{ U_INDEX }}{% endif %}" title="{% if U_SITE_HOME %}{{ L_SITE_HOME }}{% else %}{{ L_INDEX }}{% endif %}">
+					{{ Icon('svg', 'logo', SITENAME, true, 'c-hero-logo-img') }}
+				</a>
+
+				<h1 class="c-hero-heading">
+					{{ SITENAME }}
+					<p class="c-hero-lead">{{ SITE_DESCRIPTION }}</p>
+				</h1>
+				<p class="skiplink"><a href="#start_here">{{ lang('SKIP') }}</a></p>
+			</hgroup>
+
+			{% EVENT overall_header_searchbox_before %}
+			{% if S_DISPLAY_SEARCH and not S_IN_SEARCH %}
+			<div id="search-box" class="search-box search-header" role="search">
+				<form action="{{ U_SEARCH }}" method="get" id="search">
+				<fieldset>
+					<input name="keywords" id="keywords" type="search" maxlength="128" title="{{ lang('SEARCH_KEYWORDS') }}" class="inputbox search tiny" size="20" value="{{ SEARCH_WORDS }}" placeholder="{{ lang('SEARCH_MINI') }}" />
+					<button class="button button-search" type="submit" title="{{ lang('SEARCH') }}">
+						{{ Icon('font', 'search', lang('SEARCH'), true, 'fas c-button-icon') }}
+					</button>
+					<a href="{{ U_SEARCH }}" class="button button-search-end" title="{{ lang('SEARCH_ADV') }}">
+						{{ Icon('font', 'gear', lang('SEARCH_ADV'), true, 'fas c-button-icon') }}
+					</a>
+					{{ S_SEARCH_HIDDEN_FIELDS }}
+				</fieldset>
+				</form>
+			</div>
+			{% endif %}
+			{% EVENT overall_header_searchbox_after %}
+
+			</div>
+			{% EVENT overall_header_headerbar_after %}
+		</div>
+	</div>
+
+	{% include 'breadcrumbs.html' %}
+
+	{% EVENT overall_header_page_body_before %}
+
+	<a id="start_here" class="anchor"></a>
+	<main id="page-body" class="page-body flex-1 w-full max-w-5xl mx-auto px-4 pt-4 pb-32" role="main">
+		{% if S_BOARD_DISABLED and S_USER_LOGGED_IN and (U_MCP or U_ACP) %}
+		<div id="information" class="rules">
+			<div class="inner">
+				<strong>{{ lang('INFORMATION') }}{{ lang('COLON') }}</strong> {{ lang('BOARD_DISABLED') }}
+			</div>
+		</div>
+		{% endif %}
+
+		{% EVENT overall_header_content_before %}

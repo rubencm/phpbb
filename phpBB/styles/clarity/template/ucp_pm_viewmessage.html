@@ -1,0 +1,217 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+{% include 'ucp_pm_message_header.html' %}
+
+	</div>
+</div>
+
+
+{% if S_DISPLAY_HISTORY and (U_VIEW_PREVIOUS_HISTORY or U_VIEW_NEXT_HISTORY) %}
+	<fieldset class="display-options clearfix">
+		{% if U_VIEW_PREVIOUS_HISTORY %}
+			<a href="{{ U_VIEW_PREVIOUS_HISTORY }}" class="left-box arrow-{{ S_CONTENT_FLOW_BEGIN }}">
+				{{ Icon('font', 'angle-' ~ S_CONTENT_FLOW_BEGIN, lang('VIEW_PREVIOUS_HISTORY'), false, 'fas c-return-arrow-icon') }}
+			</a>
+		{% endif %}
+		{% if U_VIEW_NEXT_HISTORY %}
+			<a href="{{ U_VIEW_NEXT_HISTORY }}" class="right-box arrow-{{ S_CONTENT_FLOW_END }}">
+				{{ Icon('font', 'angle-' ~ S_CONTENT_FLOW_END, lang('VIEW_NEXT_HISTORY'), false, 'fas c-return-arrow-icon') }}
+			</a>
+		{% endif %}
+	</fieldset>
+{% endif %}
+
+
+<div id="post-{{ MESSAGE_ID }}" class="post pm has-profile">
+	<div class="inner">
+
+		<dl class="postprofile" id="profile{{ MESSAGE_ID }}">
+			<dt class="{% if RANK_TITLE or RANK_IMG %}has-profile-rank{% else %}no-profile-rank{% endif %} has-avatar">
+				<div class="avatar-container">
+					{% EVENT ucp_pm_viewmessage_avatar_before %}
+					{% include 'avatar.html' with {'avatar_data': AUTHOR_AVATAR} only %}
+					{% EVENT ucp_pm_viewmessage_avatar_after %}
+				</div>
+				{% apply spaceless %}
+					{% EVENT ucp_pm_viewmessage_author_full_before %}
+					{{ MESSAGE_AUTHOR_FULL }}
+					{% EVENT ucp_pm_viewmessage_author_full_after %}
+					{% if S_ONLINE %}  {{ Icon('font', 'circle', lang('ONLINE'), true, 'fas c-online-icon') }}{% endif %}
+				{% endapply %}
+			</dt>
+
+			{% EVENT ucp_pm_viewmessage_rank_before %}
+			{% if RANK_IMG or RANK_TITLE %}<dd class="profile-rank rank-img">{{ RANK_TITLE }}{% if RANK_IMG and RANK_TITLE %}<br />{% endif %}{{ RANK_IMG }}</dd>{% endif %}
+			{% EVENT ucp_pm_viewmessage_rank_after %}
+
+			<dd class="profile-posts"><strong>{{ lang('POSTS') }}{{ lang('COLON') }}</strong> {% if U_AUTHOR_POSTS != '' %}<a href="{{ U_AUTHOR_POSTS }}">{{ AUTHOR_POSTS }}</a>{% else %}{{ AUTHOR_POSTS }}{% endif %}</dd>
+			{% if AUTHOR_JOINED %}<dd class="profile-joined"><strong>{{ lang('JOINED') }}{{ lang('COLON') }}</strong> {{ AUTHOR_JOINED }}</dd>{% endif %}
+
+			{% EVENT ucp_pm_viewmessage_custom_fields_before %}
+			{% for custom_fields in loops.custom_fields %}
+				{% if not custom_fields.S_PROFILE_CONTACT %}
+					<dd class="profile-custom-field profile-{{ custom_fields.PROFILE_FIELD_IDENT }}"><strong>{{ custom_fields.PROFILE_FIELD_NAME }}{{ lang('COLON') }}</strong> {{ custom_fields.PROFILE_FIELD_VALUE }}</dd>
+				{% endif %}
+			{% endfor %}
+			{% EVENT ucp_pm_viewmessage_custom_fields_after %}
+
+			{% EVENT ucp_pm_viewmessage_contact_fields_before %}
+			{% if loops.contact|length %}
+				<dd class="profile-contact">
+					<strong>{{ lang('CONTACT') }}{{ lang('COLON') }}</strong>
+					<div class="dropdown-container dropdown-left">
+						<a href="#" class="dropdown-trigger" title="{{ CONTACT_USER }}">{{ Icon('font', 'comment-dots', CONTACT_USER, true, 'far') }}</a>
+						<div class="dropdown">
+							<div class="pointer"><div class="pointer-inner"></div></div>
+							<div class="dropdown-contents contact-icons">
+								{% for contact in loops.contact %}
+									{% set REMAINDER = contact.S_ROW_COUNT % 4 %}
+									{% DEFINE S_LAST_CELL = ((REMAINDER == 3) or (contact.S_LAST_ROW and contact.S_NUM_ROWS < 4)) %}
+									{% if REMAINDER == 0 %}
+										<div>
+									{% endif %}
+										<a href="{% if contact.U_CONTACT %}{{ contact.U_CONTACT }}{% else %}{{ contact.U_PROFILE_AUTHOR }}{% endif %}" title="{{ contact.NAME }}"{% if definition.S_LAST_CELL %} class="last-cell"{% endif %}>
+											{% if contact.ID == 'pm' %}
+												{{ Icon('font', 'message', '', true, 'far contact-icon') }}
+											{% elseif contact.ID == 'email' %}
+												{{ Icon('font', 'at', '', true, 'fas contact-icon') }}
+											{% elseif contact.ID == 'phpbb_website' %}
+												{{ Icon('font', 'earth-americas', '', true, 'fas contact-icon') }}
+											{% elseif contact.ID == 'phpbb_facebook' %}
+												{{ Icon('font', 'square-facebook', '', true, 'fab contact-icon c-facebook-icon') }}
+											{% elseif contact.ID == 'phpbb_twitter' %}
+												{{ Icon('font', 'square-x-twitter', '', true, 'fab contact-icon c-twitter-icon') }}
+											{% elseif contact.ID == 'phpbb_skype' %}
+												{{ Icon('font', 'skype', '', true, 'fab contact-icon c-skype-icon') }}
+											{% elseif contact.ID == 'phpbb_youtube' %}
+												{{ Icon('font', 'youtube', '', true, 'fab contact-icon c-youtube-icon') }}
+											{% else %}
+												{{ Icon('svg', contact.ID, '', true, 'contact-icon') }}
+											{% endif %}
+										</a>
+									{% if REMAINDER == 3 or contact.S_LAST_ROW %}
+										</div>
+									{% endif %}
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+				</dd>
+			{% endif %}
+			{% EVENT ucp_pm_viewmessage_contact_fields_after %}
+		</dl>
+
+		<div class="postbody">
+			<h3 class="first">{{ SUBJECT }}</h3>
+
+			{% DEFINE SHOW_PM_POST_BUTTONS = (U_EDIT or U_DELETE or U_REPORT or U_QUOTE) %}
+			{% EVENT ucp_pm_viewmessage_post_buttons_list_before %}
+			{% if definition.SHOW_PM_POST_BUTTONS %}
+			<ul class="post-buttons">
+				{% EVENT ucp_pm_viewmessage_post_buttons_before %}
+				{% if U_EDIT %}
+					<li>
+						<a href="{{ U_EDIT }}" title="{{ lang('POST_EDIT_PM') }}" class="button button-icon-only">
+							{{ Icon('font', 'pencil', lang('BUTTON_EDIT'), true, 'fas c-button-icon') }}
+						</a>
+					</li>
+				{% endif %}
+				{% if U_DELETE %}
+					<li>
+						<a href="{{ U_DELETE }}" title="{{ lang('DELETE_MESSAGE') }}" class="button button-icon-only">
+							{{ Icon('font', 'xmark', lang('BUTTON_DELETE'), true, 'fas c-button-icon') }}
+						</a>
+					</li>
+				{% endif %}
+				{% if U_REPORT %}
+					<li>
+						<a href="{{ U_REPORT }}" title="{{ lang('REPORT_PM') }}" class="button button-icon-only">
+							{{ Icon('font', 'exclamation', lang('BUTTON_REPORT'), true, 'fas c-button-icon') }}
+						</a>
+					</li>
+				{% endif %}
+				{% if U_QUOTE %}
+					<li>
+						<a href="{{ U_QUOTE }}" title="{{ lang('POST_QUOTE_PM') }}" class="button button-icon-only">
+							{{ Icon('font', 'quote-left', lang('BUTTON_QUOTE'), true, 'fas c-button-icon') }}
+						</a>
+					</li>
+				{% endif %}
+				{% EVENT ucp_pm_viewmessage_post_buttons_after %}
+			</ul>
+			{% endif %}
+			{% EVENT ucp_pm_viewmessage_post_buttons_list_after %}
+
+			<p class="author">
+				<strong>{{ lang('SENT_AT') }}{{ lang('COLON') }}</strong> {{ SENT_DATE }}
+				<br /><strong>{{ lang('PM_FROM') }}{{ lang('COLON') }}</strong> {{ MESSAGE_AUTHOR_FULL }}
+				{% if S_TO_RECIPIENT %}<br /><strong>{{ lang('TO') }}{{ lang('COLON') }}</strong> {% for to_recipient in loops.to_recipient %}{% if to_recipient.NAME_FULL %}{{ to_recipient.NAME_FULL }}{% else %}<a href="{{ to_recipient.U_VIEW }}"{% if to_recipient.COLOUR %} style="color:{{ to_recipient.COLOUR }};"{% endif %}><strong>{{ to_recipient.NAME }}</strong></a>{% endif %}&nbsp;{% endfor %}{% endif %}
+				{% if S_BCC_RECIPIENT %}<br /><strong>{{ lang('BCC') }}{{ lang('COLON') }}</strong> {% for bcc_recipient in loops.bcc_recipient %}{% if bcc_recipient.NAME_FULL %}{{ bcc_recipient.NAME_FULL }}{% else %}<a href="{{ bcc_recipient.U_VIEW }}"{% if bcc_recipient.COLOUR %} style="color:{{ bcc_recipient.COLOUR }};"{% endif %}><strong>{{ bcc_recipient.NAME }}</strong></a>{% endif %}&nbsp;{% endfor %}{% endif %}
+			</p>
+
+			{% EVENT ucp_pm_viewmessage_message_content_before %}
+
+			<div class="content">{{ MESSAGE }}</div>
+
+			{% if S_HAS_ATTACHMENTS %}
+				<dl class="attachbox">
+					<dt>
+						{{ lang('ATTACHMENTS') }}
+					</dt>
+					{% for attachment in loops.attachment %}
+						<dd>{{ attachment.DISPLAY_ATTACHMENT }}</dd>
+					{% endfor %}
+				</dl>
+			{% endif %}
+
+			{% if S_DISPLAY_NOTICE %}
+				<div class="post-notice error">{{ lang('DOWNLOAD_NOTICE') }}</div>
+			{% endif %}
+
+			{% if EDITED_MESSAGE or EDIT_REASON %}
+			<div class="notice">{{ EDITED_MESSAGE }}
+				{% if EDIT_REASON %}<br /><strong>{{ lang('REASON') }}{{ lang('COLON') }}</strong> <em>{{ EDIT_REASON }}</em>{% endif %}
+			</div>
+			{% endif %}
+
+			{% if SIGNATURE %}
+				<div id="sig{{ MESSAGE_ID }}" class="signature">{{ SIGNATURE }}</div>
+			{% endif %}
+		</div>
+
+		<div class="back2top">
+			<a href="#top" class="top" title="{{ lang('BACK_TO_TOP') }}">
+				{{ Icon('font', 'circle-chevron-up', lang('BACK_TO_TOP'), true, 'fas c-top-icon') }}
+			</a>
+		</div>
+
+	</div>
+</div>
+
+{% EVENT ucp_pm_viewmessage_options_before %}
+{% if S_VIEW_MESSAGE %}
+<fieldset class="display-options">
+
+	{% if S_MARK_OPTIONS %}<label for="mark_option"><select name="mark_option" id="mark_option">{{ S_MARK_OPTIONS }}</select></label>&nbsp;<input class="button1 button button-form-bold" type="submit" name="submit_mark" value="{{ lang('GO') }}" />{% endif %}
+	{% if U_PREVIOUS_PM %}
+		<a href="{{ U_PREVIOUS_PM }}" class="left-box arrow-{{ S_CONTENT_FLOW_BEGIN }}">
+			{{ Icon('font', 'angle-' ~ S_CONTENT_FLOW_BEGIN, lang('VIEW_PREVIOUS_PM'), false, 'fas c-return-arrow-icon') }}
+		</a>
+	{% endif %}
+	{% if U_NEXT_PM %}
+		<a href="{{ U_NEXT_PM }}" class="right-box arrow-{{ S_CONTENT_FLOW_END }}">
+			{{ Icon('font', 'angle-' ~ S_CONTENT_FLOW_END, lang('VIEW_NEXT_PM'), false, 'fas c-return-arrow-icon') }}
+		</a>
+	{% endif %}
+	{% if not S_UNREAD and not S_SPECIAL_FOLDER %}<label for="dest_folder">{% if S_VIEW_MESSAGE %}{{ lang('MOVE_TO_FOLDER') }}{{ lang('COLON') }} {% else %}{{ lang('MOVE_MARKED_TO_FOLDER') }}{% endif %} <select name="dest_folder" id="dest_folder">{{ S_TO_FOLDER_OPTIONS }}</select></label> <input class="button1 button button-form-bold" type="submit" name="move_pm" value="{{ lang('GO') }}" />{% endif %}
+	<input type="hidden" name="marked_msg_id[]" value="{{ MSG_ID }}" />
+	<input type="hidden" name="cur_folder_id" value="{{ CUR_FOLDER_ID }}" />
+	<input type="hidden" name="p" value="{{ MSG_ID }}" />
+</fieldset>
+{% endif %}
+
+{% include 'ucp_pm_message_footer.html' %}
+
+{% if S_DISPLAY_HISTORY %}{% include 'ucp_pm_history.html' %}{% endif %}
+{% endblock %}

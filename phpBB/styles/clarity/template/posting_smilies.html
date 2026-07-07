@@ -1,0 +1,25 @@
+{% extends 'base_simple.html' %}
+
+{% block content %}
+<script>
+	var form_name = opener.form_name;
+	var text_name = opener.text_name;
+</script>
+{% INCLUDEJS(T_ASSETS_PATH ~ '/javascript/editor.js') %}
+
+<h2>{{ lang('SMILIES') }}</h2>
+<div class="panel">
+	<div class="inner">
+		{% for smiley in loops.smiley %}
+			<a href="#" onclick="initInsertions(); insert_text('{{ smiley.A_SMILEY_CODE }}', true, true); return false;"><img src="{{ smiley.SMILEY_IMG }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.SMILEY_DESC }}" /></a>
+		{% endfor %}
+
+	</div>
+</div>
+{% if loops.pagination|length %}
+	<div class="pagination">
+		{% include 'pagination.html' %}
+	</div>
+{% endif %}
+<a href="#" onclick="window.close(); return false;">{{ lang('CLOSE_WINDOW') }}</a>
+{% endblock %}

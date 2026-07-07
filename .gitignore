@@ -18,6 +18,7 @@
 
 # Excludes all custom styles
 /phpBB/styles/*
+!/phpBB/styles/clarity
 !/phpBB/styles/prosilver
 !/phpBB/styles/prosilver/theme/en
 !/phpBB/styles/prosilver/theme/images

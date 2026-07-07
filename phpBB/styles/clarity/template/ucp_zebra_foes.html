@@ -1,0 +1,41 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+<form id="ucp" method="post" action="{{ S_UCP_ACTION }}"{{ S_FORM_ENCTYPE }}>
+
+<h2>{{ lang('TITLE') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+
+	<p>{{ lang('FOES_EXPLAIN') }}</p>
+
+	<fieldset class="fields2">
+	{% if ERROR %}<p class="error">{{ ERROR }}</p>{% endif %}
+	<dl>
+		<dt><label {% if S_USERNAME_OPTIONS %}for="usernames"{% endif %}>{{ lang('YOUR_FOES') }}{{ lang('COLON') }}</label><br /><span>{{ lang('YOUR_FOES_EXPLAIN') }}</span></dt>
+		<dd>
+			{% if S_USERNAME_OPTIONS %}
+				<select name="usernames[]" id="usernames" multiple="multiple" size="5">{{ S_USERNAME_OPTIONS }}</select>
+			{% else %}
+				<strong>{{ lang('NO_FOES') }}</strong>
+			{% endif %}
+		</dd>
+	</dl>
+	<dl>
+		<dt><label for="add">{{ lang('ADD_FOES') }}{{ lang('COLON') }}</label><br /><span>{{ lang('ADD_FOES_EXPLAIN') }}</span></dt>
+		<dd><textarea name="add" id="add" rows="3" cols="30" class="inputbox">{{ USERNAMES }}</textarea></dd>
+		<dd><strong><a href="{{ U_FIND_USERNAME }}" onclick="find_username(this.href); return false;">{{ lang('FIND_USERNAME') }}</a></strong></dd>
+	</dl>
+	</fieldset>
+
+	</div>
+</div>
+
+<fieldset class="submit-buttons">
+	{{ S_HIDDEN_FIELDS }}
+	<input type="submit" name="submit" value="{{ lang('SUBMIT') }}" class="button1 button button-form" />
+	{{ S_FORM_TOKEN }}
+</fieldset>
+</form>
+{% endblock %}

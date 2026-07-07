@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-5 text-4xl font-black tracking-normal text-slate-950 sm:text-5xl">{{ lang('MCP') }}</h2>
+
+{% if U_MCP %}
+	<p class="linkmcp responsive-center mb-5 flex flex-wrap gap-2 rounded-[1.5rem] border border-white/60 bg-white/65 p-3 text-sm font-bold text-slate-500 shadow-float backdrop-blur-md">
+		{% if U_ACP %}<a class="rounded-full px-3 py-2 hover:bg-white hover:text-primary" href="{{ U_ACP }}" title="{{ lang('ACP') }}" data-responsive-text="{{ lang('ACP_SHORT') }}">{{ lang('ACP') }}</a>{% endif %}<a class="rounded-full px-3 py-2 hover:bg-white hover:text-primary" href="{{ U_MCP }}" title="{{ lang('MCP') }}" data-responsive-text="{{ lang('MCP_SHORT') }}">{{ lang('MCP') }}</a>{% if U_MCP_FORUM %}<a class="rounded-full px-3 py-2 hover:bg-white hover:text-primary" href="{{ U_MCP_FORUM }}">{{ lang('MODERATE_FORUM') }}</a>{% endif %}{% if U_MCP_TOPIC %}<a class="rounded-full px-3 py-2 hover:bg-white hover:text-primary" href="{{ U_MCP_TOPIC }}">{{ lang('MODERATE_TOPIC') }}</a>{% endif %}{% if U_MCP_POST %}<a class="rounded-full px-3 py-2 hover:bg-white hover:text-primary" href="{{ U_MCP_POST }}">{{ lang('MODERATE_POST') }}</a>{% endif %}
+	</p>
+{% endif %}
+
+<div id="tabs" class="tabs mb-5 overflow-x-auto rounded-full border border-white/60 bg-white/65 p-1 shadow-float backdrop-blur-md">
+	<ul class="flex min-w-max gap-1">
+		{% for l_block1 in loops.l_block1 %}
+		<li class="tab{% if l_block1.S_SELECTED %} activetab{% endif %}"><a class="block rounded-full px-4 py-2 text-sm font-black {% if l_block1.S_SELECTED %}bg-primary text-white shadow-lg shadow-primary/20{% else %}text-slate-500 hover:bg-white hover:text-primary{% endif %}" href="{{ l_block1.U_TITLE }}">{{ l_block1.L_TITLE }}</a></li>
+		{% endfor %}
+	</ul>
+</div>
+
+<div class="panel bg3 rounded-[2rem] border border-white/60 bg-white/65 shadow-float backdrop-blur-md">
+	<div class="inner p-4 sm:p-6">
+
+	<div class="grid w-full gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]" style="width: 100%;">
+
+	<div id="cp-menu" class="cp-menu">
+		<div id="navigation" class="navigation rounded-[1.5rem] border border-slate-200/70 bg-white/70 p-3" role="navigation">
+			<ul class="space-y-1">
+			{% for l_block1 in loops.l_block1 %}
+			{% if l_block1.S_SELECTED %}
+				{% for l_block2 in l_block1.l_block2 %}
+				{% if l_block2.S_SELECTED %}
+				<li id="active-subsection" class="active-subsection"><a class="block rounded-2xl bg-primary px-3 py-2 text-sm font-black text-white" href="{{ l_block2.U_TITLE }}"><span>{{ l_block2.L_TITLE }}{% if l_block2.ADD_ITEM %} ({{ l_block2.ADD_ITEM }}){% endif %}</span></a></li>
+				{% else %}
+				<li><a class="block rounded-2xl px-3 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-primary" href="{{ l_block2.U_TITLE }}"><span>{{ l_block2.L_TITLE }}{% if l_block2.ADD_ITEM %} ({{ l_block2.ADD_ITEM }}){% endif %}</span></a></li>
+				{% endif %}
+				{% endfor %}
+			{% endif %}
+			{% endfor %}
+			</ul>
+		</div>
+	</div>
+
+	<div id="cp-main" class="cp-main mcp-main panel-container min-w-0 rounded-[1.5rem] border border-slate-200/70 bg-white/70 p-4 sm:p-6">
+		{% if MESSAGE %}
+		<div class="content rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
+			<h2 class="message-title mb-2 text-lg font-black">{{ lang('MESSAGE') }}</h2>
+			<p class="error font-bold">{{ MESSAGE }}</p>
+			<p class="mt-3">{% for return_links in loops.return_links %}{{ return_links.MESSAGE_LINK }}<br /><br />{% endfor %}</p>
+		</div>
+		{% endif %}
+{% block mcp_content %}{% endblock %}
+</div>
+
+	</div>
+	</div>
+</div>
+{% endblock %}

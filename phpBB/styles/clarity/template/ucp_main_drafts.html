@@ -1,0 +1,79 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+<form id="postform" method="post" action="{{ S_UCP_ACTION }}"{{ S_FORM_ENCTYPE }}>
+
+<h2>{{ lang('TITLE') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+
+	<p>{{ lang('DRAFTS_EXPLAIN') }}</p>
+
+{% if S_EDIT_DRAFT %}
+
+		{% include 'posting_editor.html' %}
+		</div>
+	</div>
+
+			<fieldset class="submit-buttons">
+				{{ S_HIDDEN_FIELDS }}
+				<input type="submit" name="submit" value="{{ lang('SAVE') }}" class="button1 button button-form" />
+				{{ S_FORM_TOKEN }}
+			</fieldset>
+
+{% else %}
+
+	{% if loops.draftrow|length %}
+		<ul class="topiclist missing-column">
+			<li class="header">
+				<dl>
+					<dt><div class="list-inner">{{ lang('DRAFT_TITLE') }}</div></dt>
+					<dd class="info"><span>{{ lang('SAVE_DATE') }}</span></dd>
+					<dd class="mark">{{ lang('MARK') }}</dd>
+				</dl>
+			</li>
+		</ul>
+		<ul class="topiclist cplist missing-column">
+
+		{% for draftrow in loops.draftrow %}
+			<li class="row{% if draftrow.S_ROW_COUNT is odd %} bg1{% else %} bg2{% endif %}">
+				<dl>
+					<dt>
+						<div class="list-inner">
+							<a class="topictitle" href="{{ draftrow.U_VIEW_EDIT }}">{{ draftrow.DRAFT_SUBJECT }}</a><br />
+							{% if draftrow.S_LINK_TOPIC %}{{ lang('TOPIC') }}{{ lang('COLON') }} <a href="{{ draftrow.U_VIEW }}">{{ draftrow.TITLE }}</a>
+							{% elseif draftrow.S_LINK_FORUM %}{{ lang('FORUM') }}{{ lang('COLON') }} <a href="{{ draftrow.U_VIEW }}">{{ draftrow.TITLE }}</a>
+							{% elseif S_PRIVMSGS %}
+							{% else %}{{ lang('NO_TOPIC_FORUM') }}{% endif %}
+							<div class="responsive-show" style="display: none;">
+								{{ lang('SAVE_DATE') }}{{ lang('COLON') }} <strong>{{ draftrow.DATE }}</strong><br />
+								{% if draftrow.U_INSERT %}<a href="{{ draftrow.U_INSERT }}">{{ lang('LOAD_DRAFT') }}</a> &bull; {% endif %}<a href="{{ draftrow.U_VIEW_EDIT }}">{{ lang('VIEW_EDIT') }}</a>
+							</div>
+						</div>
+					</dt>
+					<dd class="info"><span>{{ draftrow.DATE }}<br />{% if draftrow.U_INSERT %}<a href="{{ draftrow.U_INSERT }}">{{ lang('LOAD_DRAFT') }}</a> &bull; {% endif %}<a href="{{ draftrow.U_VIEW_EDIT }}">{{ lang('VIEW_EDIT') }}</a></span></dd>
+					<dd class="mark"><input type="checkbox" name="d[{{ draftrow.DRAFT_ID }}]" id="d{{ draftrow.DRAFT_ID }}" /></dd>
+				</dl>
+			</li>
+		{% endfor %}
+		</ul>
+	{% else %}
+		<p><strong>{{ lang('NO_SAVED_DRAFTS') }}</strong></p>
+	{% endif %}
+
+		</div>
+	</div>
+
+	{% if loops.draftrow|length %}
+		<fieldset class="display-actions">
+			<input class="button1 button button-form-bold" type="submit" name="delete" value="{{ lang('DELETE_MARKED') }}" />
+			<div><a href="#" onclick="marklist('postform', '', true); return false;">{{ lang('MARK_ALL') }}</a> &bull; <a href="#" onclick="marklist('postform', '', false); return false;">{{ lang('UNMARK_ALL') }}</a></div>
+			{{ S_FORM_TOKEN }}
+		</fieldset>
+	{% endif %}
+
+{% endif %}
+
+</form>
+{% endblock %}

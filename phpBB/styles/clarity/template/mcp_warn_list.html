@@ -1,0 +1,70 @@
+{% extends 'base_mcp.html' %}
+
+{% block mcp_content %}
+<form method="post" id="mcp" action="{{ U_POST_ACTION }}">
+
+<h2>{{ lang('WARNED_USERS') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+
+	<p>{{ lang('WARNED_USERS_EXPLAIN') }}</p>
+
+	{% if loops.user|length %}
+		<div class="action-bar bar-top">
+			<div class="pagination">
+				{{ TOTAL_USERS }}
+				{% if loops.pagination|length %}
+					{% include 'pagination.html' %}
+				{% else %}
+					 &bull; {{ PAGE_NUMBER }}
+				{% endif %}
+			</div>
+		</div>
+
+		<table class="table1">
+		<thead>
+			<tr>
+				<th class="name">{{ lang('USERNAME') }}</th>
+				<th class="name">{{ lang('WARNINGS') }}</th>
+				<th class="name">{{ lang('LATEST_WARNING_TIME') }}</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+
+		{% for user in loops.user %}
+			<tr class="{% if user.S_ROW_COUNT is even %}bg1{% else %}bg2{% endif %}">
+				<td>{{ user.USERNAME_FULL }}</td>
+				<td>{{ user.WARNINGS }}</td>
+				<td>{{ user.WARNING_TIME }}</td>
+				<td><a href="{{ user.U_NOTES }}">{{ lang('VIEW_NOTES') }}</a></td>
+			</tr>
+		{% endfor %}
+		</tbody>
+		</table>
+
+		<div class="action-bar bottom">
+			{% include 'display_options.html' %}
+
+			<div class="pagination">
+				{{ TOTAL_USERS }}
+				{% if loops.pagination|length %}
+					{% include 'pagination.html' %}
+				{% else %}
+					 &bull; {{ PAGE_NUMBER }}
+				{% endif %}
+			</div>
+		</div>
+
+	{% else %}
+		<p><strong>{{ lang('NO_WARNINGS') }}</strong></p>
+	{% endif %}
+
+	</div>
+
+{{ S_FORM_TOKEN }}
+</div>
+
+</form>
+{% endblock %}

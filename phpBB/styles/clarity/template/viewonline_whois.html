@@ -1,0 +1,12 @@
+{% extends 'base_simple.html' %}
+
+{% block content %}
+<h2>{{ lang('WHOIS') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+	   <pre>{{ WHOIS }}</pre>
+	</div>
+</div>
+<a  href="#" onclick="window.close(); return false;">{{ lang('CLOSE_WINDOW') }}</a>
+{% endblock %}

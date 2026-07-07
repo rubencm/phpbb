@@ -1,0 +1,519 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% EVENT viewtopic_topic_title_before %}
+<div class="mb-6 rounded-[2rem] border border-white/60 bg-white/60 p-6 shadow-float backdrop-blur-md sm:p-8">
+<h2 class="topic-title mb-3 text-4xl font-black tracking-normal text-slate-950 sm:text-5xl">{% EVENT viewtopic_topic_title_prepend %}<a class="hover:text-primary" href="{{ U_VIEW_TOPIC }}">{{ TOPIC_TITLE }}</a>{% EVENT viewtopic_topic_title_append %}</h2>
+{% EVENT viewtopic_topic_title_after %}
+<!-- NOTE: remove the style="display: none" when you want to have the forum description on the topic body -->
+{% if FORUM_DESC %}<div style="display: none !important;">{{ FORUM_DESC }}<br /></div>{% endif %}
+
+{% if MODERATORS %}
+<p class="text-sm font-medium text-slate-500">
+	<strong>{% if S_SINGLE_MODERATOR %}{{ lang('MODERATOR') }}{% else %}{{ lang('MODERATORS') }}{% endif %}{{ lang('COLON') }}</strong> {{ MODERATORS }}
+</p>
+{% endif %}
+</div>
+
+{% if S_FORUM_RULES %}
+	<div class="rules rounded-[1.5rem] border border-amber-200/70 bg-amber-50/80 shadow-sm{% if U_FORUM_RULES %} rules-link{% endif %}">
+		<div class="inner p-5 text-sm leading-6 text-amber-900">
+
+		{% if U_FORUM_RULES %}
+			<a class="font-black text-amber-900 hover:text-primary" href="{{ U_FORUM_RULES }}">{{ lang('FORUM_RULES') }}</a>
+		{% else %}
+			<strong>{{ lang('FORUM_RULES') }}</strong><br />
+			{{ FORUM_RULES }}
+		{% endif %}
+
+		</div>
+	</div>
+{% endif %}
+
+<div class="action-bar bar-top my-5 flex flex-col gap-3 rounded-[1.5rem] border border-white/60 bg-white/65 p-3 shadow-float backdrop-blur-md sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+	{% EVENT viewtopic_buttons_top_before %}
+
+	{% if not S_IS_BOT and S_DISPLAY_REPLY_INFO %}
+		<a href="{{ U_POST_REPLY_TOPIC }}" class="button inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/25 hover:bg-primary/90" title="{% if S_IS_LOCKED %}{{ lang('TOPIC_LOCKED') }}{% else %}{{ lang('POST_REPLY') }}{% endif %}">
+			{% if S_IS_LOCKED %}
+				<span>{{ lang('BUTTON_TOPIC_LOCKED') }}</span> {{ Icon('font', 'lock', '', true, 'fas c-button-icon') }}
+			{% else %}
+				<span>{{ lang('BUTTON_POST_REPLY') }}</span> {{ Icon('font', 'reply', '', true, 'fas c-button-icon') }}
+			{% endif %}
+		</a>
+	{% endif %}
+
+	{% EVENT viewtopic_buttons_top_after %}
+	{% include 'viewtopic_topic_tools.html' %}
+	{% EVENT viewtopic_dropdown_top_custom %}
+
+	{% if S_DISPLAY_SEARCHBOX %}
+		<div class="search-box rounded-full bg-slate-100/80 p-1" role="search">
+			<form method="get" id="topic-search" action="{{ S_SEARCHBOX_ACTION }}">
+			<fieldset class="flex items-center gap-1">
+				<input class="inputbox search tiny min-w-0 rounded-full border-0 bg-transparent px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:ring-0"  type="search" name="keywords" id="search_keywords" size="20" placeholder="{{ lang('SEARCH_TOPIC') }}" />
+				<button class="button button-search inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-white hover:text-primary" type="submit" title="{{ lang('SEARCH') }}">
+					{{ Icon('font', 'search', lang('SEARCH'), true, 'fas c-button-icon') }}
+				</button>
+				<a href="{{ U_SEARCH }}" class="button button-search-end inline-flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-white hover:text-primary" title="{{ lang('SEARCH_ADV') }}">
+					{{ Icon('font', 'gear', lang('SEARCH_ADV'), true, 'fas c-button-icon') }}
+				</a>
+				{{ S_SEARCH_LOCAL_HIDDEN_FIELDS }}
+			</fieldset>
+			</form>
+		</div>
+	{% endif %}
+
+	{% if loops.pagination|length or TOTAL_POSTS %}
+		<div class="pagination flex flex-wrap items-center gap-2 text-sm font-bold text-slate-500">
+			{% if U_VIEW_UNREAD_POST and not S_IS_BOT %}<a href="{{ U_VIEW_UNREAD_POST }}" class="mark text-primary hover:text-primary/80">{{ lang('VIEW_UNREAD_POST') }}</a> &bull; {% endif %}{{ TOTAL_POSTS }}
+			{% if loops.pagination|length %}
+				{% include 'pagination.html' %}
+			{% else %}
+				&bull; {{ PAGE_NUMBER }}
+			{% endif %}
+		</div>
+	{% endif %}
+	{% EVENT viewtopic_body_pagination_top_after %}
+</div>
+
+{% EVENT viewtopic_body_poll_before %}
+
+{% if S_HAS_POLL %}
+	<form method="post" action="{{ S_POLL_ACTION }}" data-ajax="vote_poll" data-refresh="true" class="topic_poll">
+
+	<div class="panel rounded-[2rem] border border-white/60 bg-white/65 shadow-float backdrop-blur-md">
+		<div class="inner p-5 sm:p-6">
+
+		<div class="content">
+			<h2 class="poll-title mb-2 text-2xl font-black text-slate-950">{% EVENT viewtopic_body_poll_question_prepend %}{{ POLL_QUESTION }}{% EVENT viewtopic_body_poll_question_append %}</h2>
+			<p class="author text-sm font-semibold text-slate-400">{{ lang('POLL_LENGTH') }}{% if S_CAN_VOTE and L_POLL_LENGTH %}<br />{% endif %}{% if S_CAN_VOTE %}<span class="poll_max_votes">{{ lang('MAX_VOTES') }}</span>{% endif %}</p>
+
+			<fieldset class="polls mt-5 space-y-3">
+			{% for poll_option in loops.poll_option %}
+				{% EVENT viewtopic_body_poll_option_before %}
+				<dl class="rounded-2xl border border-slate-200/70 bg-white/70 p-4{% if poll_option.POLL_OPTION_VOTED %} voted{% endif %}{% if poll_option.POLL_OPTION_MOST_VOTES %} most-votes ring-2 ring-primary/20{% endif %}"{% if poll_option.POLL_OPTION_VOTED %} title="{{ lang('POLL_VOTED_OPTION') }}"{% endif %} data-alt-text="{{ lang('POLL_VOTED_OPTION') }}" data-poll-option-id="{{ poll_option.POLL_OPTION_ID }}">
+					<dt class="mb-2 text-sm font-black text-slate-800">{% if S_CAN_VOTE %}<label class="inline-flex items-center gap-2" for="vote_{{ poll_option.POLL_OPTION_ID }}">{{ poll_option.POLL_OPTION_CAPTION }}</label>{% else %}{{ poll_option.POLL_OPTION_CAPTION }}{% endif %}</dt>
+					{% if S_CAN_VOTE %}<dd style="width: auto;" class="poll_option_select mb-2">{% if S_IS_MULTI_CHOICE %}<input class="rounded border-slate-300 text-primary focus:ring-primary/20" type="checkbox" name="vote_id[]" id="vote_{{ poll_option.POLL_OPTION_ID }}" value="{{ poll_option.POLL_OPTION_ID }}"{% if poll_option.POLL_OPTION_VOTED %} checked="checked"{% endif %} />{% else %}<input class="border-slate-300 text-primary focus:ring-primary/20" type="radio" name="vote_id[]" id="vote_{{ poll_option.POLL_OPTION_ID }}" value="{{ poll_option.POLL_OPTION_ID }}"{% if poll_option.POLL_OPTION_VOTED %} checked="checked"{% endif %} />{% endif %}</dd>{% endif %}
+					<dd class="resultbar{% if not S_DISPLAY_RESULTS %} hidden{% endif %}"><div class="{% if poll_option.POLL_OPTION_PCT < 20 %}pollbar1{% elseif poll_option.POLL_OPTION_PCT < 40 %}pollbar2{% elseif poll_option.POLL_OPTION_PCT < 60 %}pollbar3{% elseif poll_option.POLL_OPTION_PCT < 80 %}pollbar4{% else %}pollbar5{% endif %}" style="width:{{ poll_option.POLL_OPTION_PERCENT_REL }};">{{ poll_option.POLL_OPTION_RESULT }}</div></dd>
+					<dd class="poll_option_percent mt-1 text-xs font-black text-slate-400{% if not S_DISPLAY_RESULTS %} hidden{% endif %}">{% if poll_option.POLL_OPTION_RESULT == 0 %}{{ lang('NO_VOTES') }}{% else %}{{ poll_option.POLL_OPTION_PERCENT }}{% endif %}</dd>
+				</dl>
+				{% EVENT viewtopic_body_poll_option_after %}
+			{% endfor %}
+
+				<dl class="poll_total_votes text-sm font-bold text-slate-500{% if not S_DISPLAY_RESULTS %} hidden{% endif %}">
+					<dt>&nbsp;</dt>
+					<dd class="resultbar">{{ lang('TOTAL_VOTES') }}{{ lang('COLON') }} <span class="poll_total_vote_cnt">{{ TOTAL_VOTES }}</span></dd>
+				</dl>
+
+			{% if S_CAN_VOTE %}
+				<dl style="border-top: none;" class="poll_vote">
+					<dt>&nbsp;</dt>
+					<dd class="resultbar"><input type="submit" name="update" value="{{ lang('SUBMIT_VOTE') }}" class="button1 button button-form rounded-full bg-primary px-5 py-2 text-sm font-black text-white shadow-lg shadow-primary/25 hover:bg-primary/90" /></dd>
+				</dl>
+			{% endif %}
+
+			{% if not S_DISPLAY_RESULTS %}
+				<dl style="border-top: none;" class="poll_view_results">
+					<dt>&nbsp;</dt>
+					<dd class="resultbar"><a class="text-sm font-bold text-primary hover:text-primary/80" href="{{ U_VIEW_RESULTS }}">{{ lang('VIEW_RESULTS') }}</a></dd>
+				</dl>
+			{% endif %}
+			</fieldset>
+			<div class="vote-submitted hidden">{{ lang('VOTE_SUBMITTED') }}</div>
+		</div>
+
+		</div>
+		{{ S_FORM_TOKEN }}
+		{{ S_HIDDEN_FIELDS }}
+	</div>
+
+	</form>
+	<hr />
+{% endif %}
+
+{% EVENT viewtopic_body_poll_after %}
+
+{% for postrow in loops.postrow %}
+	{% EVENT viewtopic_body_postrow_post_before %}
+	{% if postrow.S_FIRST_UNREAD %}
+		<a id="unread" class="anchor"{% if S_UNREAD_VIEW %} data-url="{{ postrow.U_MINI_POST }}"{% endif %}></a>
+	{% endif %}
+	<div id="p{{ postrow.POST_ID }}" class="post has-profile group rounded-[2rem] border border-white/70 bg-white/75 shadow-float backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-xl {% if postrow.S_ROW_COUNT is odd %}bg1{% else %}bg2{% endif %}{% if postrow.S_UNREAD_POST %} unreadpost{% endif %}{% if postrow.S_POST_REPORTED %} reported{% endif %}{% if postrow.S_POST_DELETED %} deleted{% endif %}{% if postrow.POSTER_WARNINGS %} warned{% endif %}">
+		<div class="inner grid gap-6 p-5 md:grid-cols-[12rem_minmax(0,1fr)] md:p-6">
+
+		<dl class="postprofile text-sm text-slate-500" id="profile{{ postrow.POST_ID }}"{% if postrow.S_POST_HIDDEN %} style="display: none;"{% endif %}>
+			<dt class="{% if postrow.RANK_TITLE or postrow.RANK_IMG %}has-profile-rank{% else %}no-profile-rank{% endif %} has-avatar flex flex-col items-start gap-2">
+				<div class="avatar-container rounded-full ring-4 ring-white shadow-lg">
+					{% EVENT viewtopic_body_avatar_before %}
+					{% include 'avatar.html' with {
+						'avatar_data': postrow.POSTER_AVATAR,
+						'avatar_link': postrow.U_POST_AUTHOR
+					} only %}
+					{% EVENT viewtopic_body_avatar_after %}
+				</div>
+				{% EVENT viewtopic_body_post_author_before %}
+				{% if not postrow.U_POST_AUTHOR %}<strong>{{ postrow.POST_AUTHOR_FULL }}</strong>{% else %}{{ postrow.POST_AUTHOR_FULL }}{% endif %}{% if postrow.S_ONLINE and not postrow.S_POST_HIDDEN %} {{ Icon('font', 'circle', lang('ONLINE'), true, 'fas c-online-icon') }}{% endif %}
+				{% EVENT viewtopic_body_post_author_after %}
+			</dt>
+
+			{% EVENT viewtopic_body_postrow_rank_before %}
+			{% if postrow.RANK_IMG or postrow.RANK_TITLE %}<dd class="profile-rank rank-img rounded-full bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-wide text-primary">{{ postrow.RANK_TITLE }}{% if postrow.RANK_IMG and postrow.RANK_TITLE %}<br />{% endif %}{{ postrow.RANK_IMG }}</dd>{% endif %}
+			{% EVENT viewtopic_body_postrow_rank_after %}
+
+		{% if postrow.POSTER_POSTS != '' %}<dd class="profile-posts"><strong>{{ lang('POSTS') }}{{ lang('COLON') }}</strong> {% if postrow.U_SEARCH != '' %}<a href="{{ postrow.U_SEARCH }}">{% endif %}{{ postrow.POSTER_POSTS }}{% if postrow.U_SEARCH != '' %}</a>{% endif %}</dd>{% endif %}
+		{% if postrow.POSTER_JOINED %}<dd class="profile-joined"><strong>{{ lang('JOINED') }}{{ lang('COLON') }}</strong> {{ postrow.POSTER_JOINED }}</dd>{% endif %}
+		{% if postrow.POSTER_WARNINGS %}<dd class="profile-warnings"><strong>{{ lang('WARNINGS') }}{{ lang('COLON') }}</strong> {{ postrow.POSTER_WARNINGS }}</dd>{% endif %}
+
+		{% if postrow.S_PROFILE_FIELD1 %}
+			<!-- Use a construct like this to include admin defined profile fields. Replace FIELD1 with the name of your field. -->
+			<dd><strong>{{ postrow.PROFILE_FIELD1_NAME }}{{ lang('COLON') }}</strong> {{ postrow.PROFILE_FIELD1_VALUE }}</dd>
+		{% endif %}
+
+		{% EVENT viewtopic_body_postrow_custom_fields_before %}
+		{% for custom_fields in postrow.custom_fields %}
+			{% if not custom_fields.S_PROFILE_CONTACT %}
+				<dd class="profile-custom-field profile-{{ custom_fields.PROFILE_FIELD_IDENT }}"><strong>{{ custom_fields.PROFILE_FIELD_NAME }}{{ lang('COLON') }}</strong> {{ custom_fields.PROFILE_FIELD_VALUE }}</dd>
+			{% endif %}
+		{% endfor %}
+		{% EVENT viewtopic_body_postrow_custom_fields_after %}
+
+		{% EVENT viewtopic_body_contact_fields_before %}
+		{% if not S_IS_BOT and postrow.contact|length %}
+			<dd class="profile-contact">
+				<strong>{{ lang('CONTACT') }}{{ lang('COLON') }}</strong>
+				<div class="dropdown-container dropdown-left">
+					<a href="#" class="dropdown-trigger" title="{{ postrow.CONTACT_USER }}">
+						{{ Icon('font', 'comment-dots', postrow.CONTACT_USER, true, 'far') }}
+					</a>
+					<div class="dropdown">
+						<div class="pointer"><div class="pointer-inner"></div></div>
+						<div class="dropdown-contents contact-icons">
+							{% for contact in postrow.contact %}
+								{% set REMAINDER = contact.S_ROW_COUNT % 4 %}
+								{% DEFINE S_LAST_CELL = ((REMAINDER == 3) or (contact.S_LAST_ROW and contact.S_NUM_ROWS < 4)) %}
+								{% if REMAINDER == 0 %}
+									<div>
+								{% endif %}
+									<a href="{% if contact.U_CONTACT %}{{ contact.U_CONTACT }}{% else %}{{ postrow.U_POST_AUTHOR }}{% endif %}" title="{{ contact.NAME }}"{% if definition.S_LAST_CELL %} class="last-cell"{% endif %}>
+										{% EVENT viewtopic_body_contact_icon_prepend %}
+										{% if contact.ID == 'pm' %}
+											{{ Icon('font', 'message', '', true, 'far contact-icon') }}
+										{% elseif contact.ID == 'email' %}
+											{{ Icon('font', 'at', '', true, 'fas contact-icon') }}
+										{% elseif contact.ID == 'phpbb_website' %}
+											{{ Icon('font', 'earth-americas', '', true, 'fas contact-icon') }}
+										{% elseif contact.ID == 'phpbb_facebook' %}
+											{{ Icon('font', 'square-facebook', '', true, 'fab contact-icon c-facebook-icon') }}
+										{% elseif contact.ID == 'phpbb_twitter' %}
+											{{ Icon('font', 'square-x-twitter', '', true, 'fab contact-icon c-twitter-icon') }}
+										{% elseif contact.ID == 'phpbb_skype' %}
+											{{ Icon('font', 'skype', '', true, 'fab contact-icon c-skype-icon') }}
+										{% elseif contact.ID == 'phpbb_youtube' %}
+											{{ Icon('font', 'youtube', '', true, 'fab contact-icon c-youtube-icon') }}
+										{% else %}
+											{{ Icon('svg', contact.ID, '', true, 'contact-icon') }}
+										{% endif %}
+										{% EVENT viewtopic_body_contact_icon_append %}
+									</a>
+								{% if REMAINDER == 3 or contact.S_LAST_ROW %}
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</dd>
+		{% endif %}
+		{% EVENT viewtopic_body_contact_fields_after %}
+
+		</dl>
+
+		<div class="postbody min-w-0 text-slate-700">
+			{% if postrow.S_POST_HIDDEN %}
+				{% if postrow.S_POST_DELETED %}
+					<div class="ignore rounded-2xl bg-slate-100 p-4 text-sm font-semibold text-slate-500" id="post_hidden{{ postrow.POST_ID }}">
+						{{ postrow.L_POST_DELETED_MESSAGE }}<br>
+						<a class="display_post text-primary hover:text-primary/80" data-post-id="{{ postrow.POST_ID }}" href="{{ postrow.U_MINI_POST_VIEW }}">{{ lang('POST_DISPLAY') }}</a>
+					</div>
+				{% elseif postrow.S_IGNORE_POST %}
+					<div class="ignore rounded-2xl bg-slate-100 p-4 text-sm font-semibold text-slate-500" id="post_hidden{{ postrow.POST_ID }}">
+						{{ postrow.L_IGNORE_POST }}<br>
+						<a class="display_post text-primary hover:text-primary/80" data-post-id="{{ postrow.POST_ID }}" href="{{ postrow.U_MINI_POST_VIEW }}">{{ lang('POST_DISPLAY') }}</a>
+					</div>
+				{% endif %}
+			{% endif %}
+			<div id="post_content{{ postrow.POST_ID }}"{% if postrow.S_POST_HIDDEN %} style="display: none;"{% endif %}>
+
+			{% EVENT viewtopic_body_post_subject_before %}
+		<h3 class="mb-3 flex flex-wrap items-center gap-2 text-sm font-black uppercase tracking-wider text-slate-950{% if postrow.S_FIRST_ROW %} first{% endif %}">
+			{% if postrow.POST_ICON_IMG %}
+				<img src="{{ T_ICONS_PATH }}{{ postrow.POST_ICON_IMG }}" width="{{ postrow.POST_ICON_IMG_WIDTH }}" height="{{ postrow.POST_ICON_IMG_HEIGHT }}" alt="{{ postrow.POST_ICON_IMG_ALT }}" title="{{ postrow.POST_ICON_IMG_ALT }}">
+			{% endif %}
+			<a class="hover:text-primary{% if postrow.S_FIRST_UNREAD %} first-unread{% endif %}" href="{{ postrow.U_MINI_POST }}">{{ postrow.POST_SUBJECT }}</a>
+		</h3>
+
+		{% DEFINE SHOW_POST_BUTTONS = (postrow.U_EDIT or postrow.U_DELETE or postrow.U_REPORT or postrow.U_WARN or postrow.U_INFO or postrow.U_QUOTE) %}
+		{% EVENT viewtopic_body_post_buttons_list_before %}
+		{% if not S_IS_BOT %}
+			{% if definition.SHOW_POST_BUTTONS %}
+				<ul class="post-buttons mb-4 flex flex-wrap justify-end gap-2">
+					{% with {'post_buttons_hide_text': true} %}
+						{% block post_buttons %}
+							{% EVENT viewtopic_body_post_buttons_before %}
+
+							{% if postrow.U_EDIT %}
+								<li>
+									<a href="{{ postrow.U_EDIT }}" title="{{ lang('EDIT_POST') }}" class="button button-icon-only inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-primary hover:text-white">
+										{{ Icon('font', 'pencil', lang('BUTTON_EDIT'), post_buttons_hide_text, 'fas c-button-icon') }}
+									</a>
+								</li>
+							{% endif %}
+							{% if postrow.U_DELETE %}
+								<li>
+									<a href="{{ postrow.U_DELETE }}" title="{{ lang('DELETE_POST') }}" class="button button-icon-only inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-primary hover:text-white">
+										{{ Icon('font', 'xmark', lang('BUTTON_DELETE'), post_buttons_hide_text, 'fas c-button-icon') }}
+									</a>
+								</li>
+							{% endif %}
+							{% if postrow.U_REPORT %}
+								<li>
+									<a href="{{ postrow.U_REPORT }}" title="{{ lang('REPORT_POST') }}" class="button button-icon-only inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-primary hover:text-white">
+										{{ Icon('font', 'exclamation', lang('BUTTON_REPORT'), post_buttons_hide_text, 'fas c-button-icon') }}
+									</a>
+								</li>
+							{% endif %}
+							{% if postrow.U_WARN %}
+								<li>
+									<a href="{{ postrow.U_WARN }}" title="{{ lang('WARN_USER') }}" class="button button-icon-only inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-primary hover:text-white">
+										{{ Icon('font', 'triangle-exclamation', lang('BUTTON_WARN'), post_buttons_hide_text, 'fas c-button-icon') }}
+									</a>
+								</li>
+							{% endif %}
+							{% if postrow.U_INFO %}
+								<li>
+									<a href="{{ postrow.U_INFO }}" title="{{ lang('INFORMATION') }}" class="button button-icon-only inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-primary hover:text-white">
+										{{ Icon('font', 'info', lang('BUTTON_INFORMATION'), post_buttons_hide_text, 'fas c-button-icon') }}
+									</a>
+								</li>
+							{% endif %}
+							{% if postrow.U_QUOTE %}
+								<li>
+									<a href="{{ postrow.U_QUOTE }}" title="{{ lang('REPLY_WITH_QUOTE') }}" class="button button-icon-only inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-primary hover:text-white">
+										{{ Icon('font', 'quote-left', lang('BUTTON_QUOTE'), post_buttons_hide_text, 'fas c-button-icon') }}
+									</a>
+								</li>
+							{% endif %}
+
+							{% EVENT viewtopic_body_post_buttons_after %}
+						{% endblock post_buttons %}
+					{% endwith %}
+
+					<li class="post-buttons-responsive-menu dropdown-container">
+						<a href="javascript:void(0);" class="button button-icon-only post-button-responsive dropdown-toggle inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-primary hover:text-white">
+							{{ Icon('font', 'bars', '', true, 'fas c-button-icon') }}
+						</a>
+						<div class="dropdown">
+							<div class="pointer">
+								<div class="pointer-inner"></div>
+							</div>
+
+							<ul class="dropdown-contents">
+								{% with {'post_buttons_hide_text': false} %}
+									{{ block('post_buttons', _self) }}
+								{% endwith %}
+							</ul>
+						</div>
+					</li>
+				</ul>
+			{% endif %}
+		{% endif %}
+		{% EVENT viewtopic_body_post_buttons_list_after %}
+
+			{% EVENT viewtopic_body_postrow_post_details_before %}
+			<p class="author mb-5 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+				<a class="unread text-primary" href="{{ postrow.U_MINI_POST }}" title="{{ postrow.MINI_POST }}">
+					{% if postrow.S_UNREAD_POST %}
+						<span>{{ Icon('font', 'file', postrow.MINI_POST, true, 'fas c-topic-unread-icon') }}</span>
+					{% else %}
+						<span>{{ Icon('font', 'file', postrow.MINI_POST, true, 'fas c-topic-icon') }}</span>
+					{% endif %}
+				</a>
+				<span class="responsive-hide">{{ lang('POST_BY_AUTHOR') }} <strong>{{ postrow.POST_AUTHOR_FULL }}</strong> &raquo; </span><time datetime="{{ postrow.POST_DATE_RFC3339 }}">{{ postrow.POST_DATE }}</time>
+			</p>
+			{% EVENT viewtopic_body_postrow_post_details_after %}
+
+			{% if postrow.S_POST_UNAPPROVED %}
+			{% if postrow.S_CAN_APPROVE %}
+			<form method="post" class="mcp_approve" action="{{ postrow.U_APPROVE_ACTION }}">
+				<p class="post-notice unapproved mb-4 flex flex-wrap items-center gap-2 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-900">
+					<span>{{ Icon('font', 'circle-question', '', true, 'fas c-unapproved-icon') }}</span>
+					<strong>{{ lang('POST_UNAPPROVED_ACTION') }}</strong>
+					<input class="button1 button button-form-bold rounded-full bg-amber-200 px-4 py-2 text-xs font-black text-amber-950" type="submit" value="{{ lang('DISAPPROVE') }}" name="action[disapprove]" />
+					<input class="button1 button button-form rounded-full bg-primary px-4 py-2 text-xs font-black text-white" type="submit" value="{{ lang('APPROVE') }}" name="action[approve]" />
+					<input type="hidden" name="post_id_list[]" value="{{ postrow.POST_ID }}" />
+					{{ S_FORM_TOKEN }}
+				</p>
+			</form>
+			{% else %}
+				<p class="post-notice unapproved mb-4 flex items-center gap-2 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-900">
+					<span>{{ Icon('font', 'triangle-exclamation', '', true, 'fas c-topic-reported-icon') }}</span>
+					<strong>{{ lang('POST_UNAPPROVED_EXPLAIN') }}</strong>
+				</p>
+			{% endif %}
+			{% elseif postrow.S_POST_DELETED %}
+			<form method="post" class="mcp_approve" action="{{ postrow.U_APPROVE_ACTION }}">
+				<p class="post-notice deleted mb-4 flex flex-wrap items-center gap-2 rounded-2xl bg-rose-50 p-4 text-sm font-bold text-rose-900">
+					<strong>{{ lang('POST_DELETED_ACTION') }}</strong>
+					{% if postrow.S_DELETE_PERMANENT %}
+						<input class="button1 button button-form-bold rounded-full bg-rose-200 px-4 py-2 text-xs font-black text-rose-950" type="submit" value="{{ lang('DELETE') }}" name="action[delete]" />
+					{% endif %}
+					<input class="button1 button button-form rounded-full bg-primary px-4 py-2 text-xs font-black text-white" type="submit" value="{{ lang('RESTORE') }}" name="action[restore]" />
+					<input type="hidden" name="post_id_list[]" value="{{ postrow.POST_ID }}" />
+					{{ S_FORM_TOKEN }}
+				</p>
+			</form>
+			{% endif %}
+
+			{% if postrow.S_POST_REPORTED %}
+			<p class="post-notice reported mb-4 rounded-2xl bg-rose-50 p-4 text-sm font-bold text-rose-900">
+				<a class="inline-flex items-center gap-2 hover:text-primary" href="{{ postrow.U_MCP_REPORT }}">{{ Icon('font', 'triangle-exclamation', '', true, 'fas c-topic-reported-icon') }}<strong>{{ lang('POST_REPORTED') }}</strong></a>
+			</p>
+			{% endif %}
+
+			{% EVENT viewtopic_body_postrow_content_before %}
+
+			<div class="content text-base leading-8 text-slate-700">{{ postrow.MESSAGE }}</div>
+
+			{% EVENT viewtopic_body_postrow_content_after %}
+
+			{% if postrow.S_HAS_ATTACHMENTS %}
+				<dl class="attachbox mt-5 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4">
+					<dt class="mb-3 text-xs font-black uppercase tracking-wider text-slate-400">
+						{{ lang('ATTACHMENTS') }}
+					</dt>
+					{% for attachment in postrow.attachment %}
+						<dd>{{ attachment.DISPLAY_ATTACHMENT }}</dd>
+					{% endfor %}
+				</dl>
+			{% endif %}
+
+			{% EVENT viewtopic_body_postrow_post_notices_before %}
+			{% if postrow.S_DISPLAY_NOTICE %}<div class="rules mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-semibold text-amber-900">{{ lang('DOWNLOAD_NOTICE') }}</div>{% endif %}
+			{% if postrow.DELETED_MESSAGE or postrow.DELETE_REASON %}
+				<div class="notice post_deleted_msg mt-4 rounded-2xl bg-slate-100 p-4 text-sm text-slate-500">
+					{{ postrow.DELETED_MESSAGE }}
+					{% if postrow.DELETE_REASON %}<br /><strong>{{ lang('REASON') }}{{ lang('COLON') }}</strong> <em>{{ postrow.DELETE_REASON }}</em>{% endif %}
+				</div>
+			{% elseif postrow.EDITED_MESSAGE or postrow.EDIT_REASON %}
+				<div class="notice mt-4 rounded-2xl bg-slate-100 p-4 text-sm text-slate-500">
+					{{ postrow.EDITED_MESSAGE }}
+					{% if postrow.EDIT_REASON %}<br /><strong>{{ lang('REASON') }}{{ lang('COLON') }}</strong> <em>{{ postrow.EDIT_REASON }}</em>{% endif %}
+				</div>
+			{% endif %}
+
+			{% if postrow.BUMPED_MESSAGE %}<div class="notice mt-4 rounded-2xl bg-slate-100 p-4 text-sm text-slate-500"><br /><br />{{ postrow.BUMPED_MESSAGE }}</div>{% endif %}
+			{% EVENT viewtopic_body_postrow_post_notices_after %}
+
+			{% EVENT viewtopic_body_postrow_signature_before %}
+				{% if postrow.SIGNATURE %}<div id="sig{{ postrow.POST_ID }}" class="signature mt-6 border-t border-slate-200 pt-4 text-sm italic text-slate-400">{{ postrow.SIGNATURE }}</div>{% endif %}
+			{% EVENT viewtopic_body_postrow_signature_after %}
+
+			{% EVENT viewtopic_body_postrow_post_content_footer %}
+			</div>
+
+		</div>
+
+		{% EVENT viewtopic_body_postrow_back2top_before %}
+		<div class="back2top">
+			{% EVENT viewtopic_body_postrow_back2top_prepend %}
+			{% EVENT viewtopic_body_postrow_back2top_append %}
+		</div>
+		{% EVENT viewtopic_body_postrow_back2top_after %}
+
+		</div>
+	</div>
+
+	<hr class="divider" />
+	{% EVENT viewtopic_body_postrow_post_after %}
+{% endfor %}
+
+{% if S_QUICK_REPLY %}
+	{% include 'quickreply_editor.html' %}
+{% endif %}
+
+{% EVENT viewtopic_body_topic_actions_before %}
+	<div class="action-bar bar-bottom my-5 flex flex-col gap-3 rounded-[1.5rem] border border-white/60 bg-white/65 p-3 shadow-float backdrop-blur-md sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+	{% EVENT viewtopic_buttons_bottom_before %}
+
+	{% if not S_IS_BOT and S_DISPLAY_REPLY_INFO %}
+		<a href="{{ U_POST_REPLY_TOPIC }}" class="button inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-black text-white shadow-lg shadow-primary/25 hover:bg-primary/90" title="{% if S_IS_LOCKED %}{{ lang('TOPIC_LOCKED') }}{% else %}{{ lang('POST_REPLY') }}{% endif %}">
+			{% if S_IS_LOCKED %}
+				<span>{{ lang('BUTTON_TOPIC_LOCKED') }}</span> {{ Icon('font', 'lock', '', true, 'fas c-button-icon') }}
+			{% else %}
+				<span>{{ lang('BUTTON_POST_REPLY') }}</span> {{ Icon('font', 'reply', '', true, 'fas c-button-icon') }}
+			{% endif %}
+		</a>
+	{% endif %}
+	{% EVENT viewtopic_buttons_bottom_after %}
+
+	{% include 'viewtopic_topic_tools.html' %}
+
+	{% if (S_NUM_POSTS > 1 or loops.pagination|length) and not S_IS_BOT %}
+		<form method="post" action="{{ S_TOPIC_ACTION }}">
+		{% include 'display_options.html' %}
+		</form>
+	{% endif %}
+
+	{% if loops.quickmod|length %}
+	<div class="quickmod dropdown-container dropdown-container-left dropdown-up dropdown-{{ S_CONTENT_FLOW_END }} dropdown-button-control" id="quickmod">
+		<span title="{{ lang('QUICK_MOD') }}" class="button button-secondary dropdown-trigger dropdown-select inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-black text-slate-600 hover:bg-white hover:text-primary">
+			{{ Icon('font', 'gavel', lang('QUICK_MOD'), true, 'fas c-button-icon') }}
+			<span class="caret">{{ Icon('font', 'caret-down', '', true, 'fas c-button-icon') }}</span>
+		</span>
+		<div class="dropdown">
+				<div class="pointer"><div class="pointer-inner"></div></div>
+				<ul class="dropdown-contents">
+				{% for quickmod in loops.quickmod %}
+					{% DEFINE QUICKMOD_AJAX = (quickmod.VALUE in ['lock', 'unlock', 'delete_topic', 'restore_topic', 'make_normal', 'make_sticky', 'make_announce', 'make_global']) %}
+					<li><a href="{{ quickmod.LINK }}"{% if definition.QUICKMOD_AJAX %} data-ajax="true" data-refresh="true"{% endif %}>{{ quickmod.TITLE }}</a></li>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+	{% endif %}
+
+	{% EVENT viewtopic_dropdown_bottom_custom %}
+
+	{% if loops.pagination|length or TOTAL_POSTS %}
+		<div class="pagination flex flex-wrap items-center gap-2 text-sm font-bold text-slate-500">
+			{{ TOTAL_POSTS }}
+			{% if loops.pagination|length %}
+				{% include 'pagination.html' %}
+			{% else %}
+				&bull; {{ PAGE_NUMBER }}
+			{% endif %}
+		</div>
+	{% endif %}
+</div>
+
+<div class="to-top-button fixed bottom-6 right-6 z-20">
+	<a class="flex h-11 w-11 items-center justify-center rounded-full bg-slate-950 text-white shadow-xl hover:bg-primary" href="#top" title="{{ lang('BACK_TO_TOP') }}">
+		{{ Icon('font', 'chevron-up', '', false) }}
+	</a>
+</div>
+
+{% EVENT viewtopic_body_footer_before %}
+{% include 'jumpbox.html' %}
+
+{% EVENT viewtopic_body_online_list_before %}
+
+{% if S_DISPLAY_ONLINE_LIST and U_VIEWONLINE %}
+	<div class="stat-block online-list rounded-[1.5rem] border border-white/60 bg-white/65 p-5 shadow-float backdrop-blur-md">
+		<h3 class="mb-2 text-sm font-black uppercase tracking-wider text-slate-400"><a class="hover:text-primary" href="{{ U_VIEWONLINE }}">{{ lang('WHO_IS_ONLINE') }}</a></h3>
+		<p class="text-sm leading-6 text-slate-600">{{ LOGGED_IN_USER_LIST }}</p>
+	</div>
+{% endif %}
+
+{% EVENT viewtopic_body_online_list_after %}
+{% endblock %}

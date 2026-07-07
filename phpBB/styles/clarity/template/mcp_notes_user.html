@@ -1,0 +1,121 @@
+{% extends 'base_mcp.html' %}
+
+{% block mcp_content %}
+<form method="post" id="mcp" action="{{ U_POST_ACTION }}">
+
+<h2>{{ lang('TITLE') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+
+	<h3>{{ USERNAME_FULL }}</h3>
+
+	<div>
+		<div class="column1">
+			{% include 'avatar.html' with {'avatar_data': USER_AVATAR} only %}
+		</div>
+
+		<div class="column2">
+			<dl class="details">
+				{% if RANK_TITLE %}<dt>{{ lang('RANK') }}{{ lang('COLON') }}</dt><dd>{{ RANK_TITLE }}</dd>{% endif %}
+				{% if RANK_IMG %}<dt>{% if RANK_TITLE %}&nbsp;{% else %}{{ lang('RANK') ~ lang('COLON') }}{% endif %}</dt><dd class="rank-img">{{ RANK_IMG }}</dd>{% endif %}
+				<dt>{{ lang('JOINED') }}{{ lang('COLON') }}</dt><dd>{{ JOINED }}</dd>
+				<dt>{{ lang('TOTAL_POSTS') }}{{ lang('COLON') }}</dt><dd>{{ POSTS }}</dd>
+				<dt>{{ lang('WARNINGS') }}{{ lang('COLON') }} </dt><dd>{{ WARNINGS }}</dd>
+			</dl>
+		</div>
+	</div>
+
+	</div>
+</div>
+
+<div class="panel">
+	<div class="inner">
+
+	<h3>{{ lang('ADD_FEEDBACK') }}</h3>
+	<p>{{ lang('ADD_FEEDBACK_EXPLAIN') }}</p>
+
+	<fieldset>
+		<textarea name="usernote" id="usernote" class="inputbox" cols="40" rows="3"></textarea>
+	</fieldset>
+
+	</div>
+</div>
+
+<fieldset class="submit-buttons">
+	{{ S_HIDDEN_FIELDS }}
+	<input type="submit" name="action[add_feedback]" value="{{ lang('SUBMIT') }}" class="button1 button button-form" />
+	{{ S_FORM_TOKEN }}
+</fieldset>
+
+<div class="panel">
+	<div class="inner">
+
+	<div class="action-bar bar-top">
+		{{ lang('SEARCH_KEYWORDS') }}{{ lang('COLON') }} <input type="search" class="inputbox autowidth" name="keywords" value="{{ S_KEYWORDS }}" />&nbsp;<input type="submit" class="button1 button button-form-bold" name="filter" value="{{ lang('SEARCH') }}" />
+		<div class="pagination">
+			{{ TOTAL_REPORTS }}
+			{% if loops.pagination|length %}
+				{% include 'pagination.html' %}
+			{% else %}
+				 &bull; {{ PAGE_NUMBER }}
+			{% endif %}
+		</div>
+	</div>
+
+	<table class="table1">
+	<thead>
+	<tr>
+		<th class="name reportby">{{ lang('REPORT_BY') }}</th>
+		<th class="center">{{ lang('IP') }}</th>
+		<th class="center">{{ lang('TIME') }}</th>
+		<th>{{ lang('ACTION_NOTE') }}</th>
+		{% if S_CLEAR_ALLOWED %}<th>{{ lang('MARK') }}</th>{% endif %}
+	</tr>
+	</thead>
+	<tbody>
+	{% for usernotes in loops.usernotes %}
+	{% if usernotes.S_ROW_COUNT is even %}<tr class="bg1">{% else %}<tr class="bg2">{% endif %}
+		<td>{{ usernotes.REPORT_BY }}</td>
+		<td class="center">{{ usernotes.IP }}</td>
+		<td class="center">{{ usernotes.REPORT_AT }}</td>
+		<td>{{ usernotes.ACTION }}</td>
+
+		{% if S_CLEAR_ALLOWED %}<td class="center" style="width: 5%;"><input type="checkbox" name="marknote[]" id="note-{{ usernotes.ID }}" value="{{ usernotes.ID }}" /></td>{% endif %}
+	</tr>
+	{% else %}
+	<tr>
+		<td class="bg1" colspan="{% if S_CLEAR_ALLOWED %}5{% else %}4{% endif %}" align="center"><span class="gen">{{ lang('NO_ENTRIES') }}</span></td>
+	</tr>
+	{% endfor %}
+	</tbody>
+	</table>
+
+	<div class="action-bar bottom">
+		{% include 'display_options.html' %}
+
+		<div class="pagination">
+			{{ TOTAL_REPORTS }}
+			{% if loops.pagination|length %}
+				{% include 'pagination.html' %}
+			{% else %}
+				 &bull; {{ PAGE_NUMBER }}
+			{% endif %}
+		</div>
+	</div>
+
+	</div>
+</div>
+
+{% if S_CLEAR_ALLOWED %}
+<fieldset class="display-actions">
+	<input class="button1 button button-form-bold" type="submit" name="action[del_all]" value="{{ lang('DELETE_ALL') }}" />
+	&nbsp;<input class="button1 button button-form" type="submit" name="action[del_marked]" value="{{ lang('DELETE_MARKED') }}" />
+</fieldset>
+
+<fieldset class="display-actions">
+	<div><a href="#" onclick="marklist('mcp', 'marknote', true); return false;">{{ lang('MARK_ALL') }}</a> &bull; <a href="#" onclick="marklist('mcp', 'marknote', false); return false;">{{ lang('UNMARK_ALL') }}</a></div>
+</fieldset>
+{% endif %}
+</form>
+{% endblock %}

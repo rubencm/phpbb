@@ -1,0 +1,51 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+<form id="postform" method="post" action="{{ S_UCP_ACTION }}"{{ S_FORM_ENCTYPE }}>
+
+<h2>{{ lang('TITLE') }}</h2>
+
+{% if SIGNATURE_PREVIEW != '' %}
+	<div class="panel">
+		<div class="inner">
+		<h3>{{ lang('SIGNATURE_PREVIEW') }}</h3>
+		<div class="postbody">
+			<div class="signature standalone">{{ SIGNATURE_PREVIEW }}</div>
+		</div>
+		</div>
+	</div>
+{% endif %}
+
+<div class="panel">
+	<div class="inner">
+
+	<p>{{ lang('SIGNATURE_EXPLAIN') }}</p>
+
+	{% DEFINE SIG_EDIT = 1 %}
+	{% include 'posting_editor.html' %}
+	<h3>{{ lang('OPTIONS') }}</h3>
+	<fieldset>
+		{% EVENT ucp_profile_signature_posting_editor_options_prepend %}
+		{% if S_BBCODE_ALLOWED %}
+			<div><label for="disable_bbcode"><input type="checkbox" name="disable_bbcode" id="disable_bbcode"{{ S_BBCODE_CHECKED }} /> {{ lang('DISABLE_BBCODE') }}</label></div>
+		{% endif %}
+		{% if S_SMILIES_ALLOWED %}
+			<div><label for="disable_smilies"><input type="checkbox" name="disable_smilies" id="disable_smilies"{{ S_SMILIES_CHECKED }} /> {{ lang('DISABLE_SMILIES') }}</label></div>
+		{% endif %}
+		{% if S_LINKS_ALLOWED %}
+			<div><label for="disable_magic_url"><input type="checkbox" name="disable_magic_url" id="disable_magic_url"{{ S_MAGIC_URL_CHECKED }} /> {{ lang('DISABLE_MAGIC_URL') }}</label></div>
+		{% endif %}
+
+	</fieldset>
+
+	</div>
+</div>
+
+<fieldset class="submit-buttons">
+	{{ S_HIDDEN_FIELDS }}
+	<input type="submit" name="preview" value="{{ lang('PREVIEW') }}" class="button1 button button-form-bold" />&nbsp;
+	<input type="submit" name="submit" value="{{ lang('SUBMIT') }}" class="button1 button button-form" />
+	{{ S_FORM_TOKEN }}
+</fieldset>
+</form>
+{% endblock %}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html class="light" dir="{{ S_CONTENT_DIRECTION }}" lang="{{ S_USER_LANG }}">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+{{ META }}
+<title>{{ SITENAME }} &bull; {% if S_IN_MCP %}{{ lang('MCP') }} &bull; {% elseif S_IN_UCP %}{{ lang('UCP') }} &bull; {% endif %}{{ PAGE_TITLE }}</title>
+<script>
+	(function() {
+		var theme = 'light';
+
+		try {
+			theme = localStorage.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+		} catch (e) {
+			theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+
+		document.documentElement.classList.toggle('dark', theme === 'dark');
+		document.documentElement.classList.toggle('light', theme !== 'dark');
+		document.documentElement.dataset.theme = theme;
+	})();
+</script>
+<link href="{{ T_FONT_AWESOME_LINK }}" rel="stylesheet">
+<link href="{{ T_STYLESHEET_LINK }}" rel="stylesheet">
+<link href="{{ T_STYLESHEET_LANG_LINK }}" rel="stylesheet">
+
+{% DEFINE POPUP = 1 %}
+
+{% EVENT simple_header_head_append %}
+
+{{ definition.STYLESHEETS }}
+
+{% EVENT simple_header_stylesheets_after %}
+
+</head>
+
+<body id="phpbb" class="nojs {{ S_CONTENT_DIRECTION }} {{ BODY_CLASS }} bg-background font-display text-foreground overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+
+{% EVENT simple_header_body_before %}
+
+<div id="wrap" class="wrap relative min-h-screen w-full">
+	<a id="top" class="top-anchor" accesskey="t"></a>
+	<main id="page-body" class="page-body w-full max-w-5xl mx-auto px-4 py-10" role="main">

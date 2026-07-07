@@ -1,0 +1,45 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+<form id="ucp" method="post" action="{{ S_UCP_ACTION }}"{{ S_FORM_ENCTYPE }}>
+
+<h2>{{ lang('TITLE') }} <span class="small">[ <a href="{{ U_USER_PROFILE }}" title="{{ lang('VIEW_PROFILE') }}">{{ lang('VIEW_PROFILE') }}</a> ]</span></h2>
+
+<div class="panel">
+	<div class="inner">
+	<p>{{ lang('PROFILE_INFO_NOTICE') }}</p>
+
+	<fieldset>
+	{% if ERROR %}<p class="error">{{ ERROR }}</p>{% endif %}
+	{% EVENT ucp_profile_profile_info_before %}
+	{% if S_BIRTHDAYS_ENABLED %}
+		<dl>
+			<dt><label for="bday_day">{{ lang('BIRTHDAY') }}{{ lang('COLON') }}{% EVENT ucp_profile_profile_info_birthday_label_append %}</label><br /><span>{{ lang('BIRTHDAY_EXPLAIN') }}</span></dt>
+			<dd>
+				<label for="bday_day">{{ lang('DAY') }}{{ lang('COLON') }} <select name="bday_day" id="bday_day">{{ S_BIRTHDAY_DAY_OPTIONS }}</select></label>
+				<label for="bday_month">{{ lang('MONTH') }}{{ lang('COLON') }} <select name="bday_month" id="bday_month">{{ S_BIRTHDAY_MONTH_OPTIONS }}</select></label>
+				<label for="bday_year">{{ lang('YEAR') }}{{ lang('COLON') }} <select name="bday_year" id="bday_year">{{ S_BIRTHDAY_YEAR_OPTIONS }}</select></label>
+			</dd>
+		</dl>
+	{% endif %}
+	{% for profile_fields in loops.profile_fields %}
+		<dl>
+			<dt><label{% if profile_fields.FIELD_ID %} for="{{ profile_fields.FIELD_ID }}"{% endif %}>{{ profile_fields.LANG_NAME }}{{ lang('COLON') }}{% if profile_fields.S_REQUIRED %} *{% endif %}</label>
+			{% if profile_fields.LANG_EXPLAIN %}<br /><span>{{ profile_fields.LANG_EXPLAIN }}</span>{% endif %}</dt>
+			{% if profile_fields.ERROR %}<dd class="error">{{ profile_fields.ERROR }}</dd>{% endif %}
+			<dd>{{ profile_fields.FIELD }}</dd>
+		</dl>
+	{% endfor %}
+	{% EVENT ucp_profile_profile_info_after %}
+	</fieldset>
+
+	</div>
+</div>
+
+<fieldset class="submit-buttons">
+	{{ S_HIDDEN_FIELDS }}
+	<input type="submit" name="submit" value="{{ lang('SUBMIT') }}" class="button1 button button-form" />
+	{{ S_FORM_TOKEN }}
+</fieldset>
+</form>
+{% endblock %}

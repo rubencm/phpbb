@@ -1,0 +1,54 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+<form id="ucp" method="post" action="{{ S_UCP_ACTION }}"{{ S_FORM_ENCTYPE }}>
+
+<h2>{{ lang('TITLE') }}</h2>
+<div class="panel">
+	<div class="inner">
+		<p>{{ lang('PROFILE_AUTOLOGIN_KEYS') }}</p>
+		{% if ERROR %}<p class="error">{{ ERROR }}</p>{% endif %}
+		{% DEFINE COLSPAN = 4 %}
+		<table class="table1">
+			<thead>
+				<tr>
+					{% EVENT ucp_profile_autologin_keys_thead_key_before %}
+					<th class="name">{{ lang('LOGIN_KEY') }}</th>
+					{% EVENT ucp_profile_autologin_keys_thead_key_after %}
+					<th class="center">{{ lang('IP') }}</th>
+					<th class="center">{{ lang('LOGIN_TIME') }}</th>
+					{% EVENT ucp_profile_autologin_keys_thead_mark_before %}
+					<th class="center mark">{{ lang('MARK') }}</th>
+					{% EVENT ucp_profile_autologin_keys_thead_mark_after %}
+				</tr>
+			</thead>
+			<tbody>
+			{% for sessions in loops.sessions %}
+				{% if sessions.S_ROW_COUNT is even %}<tr class="bg1">{% else %}<tr class="bg2">{% endif %}
+					{% EVENT ucp_profile_autologin_keys_tbody_key_before %}
+					<td><label for="{{ sessions.KEY }}">{{ sessions.KEY }}</label></td>
+					{% EVENT ucp_profile_autologin_keys_tbody_key_after %}
+					<td class="center">{{ sessions.IP }}</td>
+					<td class="center">{{ sessions.LOGIN_TIME }}</td>
+					{% EVENT ucp_profile_autologin_keys_tbody_mark_before %}
+					<td class="center mark"><input type="checkbox" name="keys[]" value="{{ sessions.KEY }}" id="{{ sessions.KEY }}" /></td>
+					{% EVENT ucp_profile_autologin_keys_tbody_mark_after %}
+				</tr>
+			{% else %}
+				<tr><td colspan="{{ definition.COLSPAN }}" class="bg1" style="text-align: center">{{ lang('PROFILE_NO_AUTOLOGIN_KEYS') }}</td></tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{% if loops.sessions|length %}
+	<fieldset class="display-actions">
+		{{ S_HIDDEN_FIELDS }}<input type="submit" name="submit" value="{{ lang('DELETE_MARKED') }}" class="button1 button button-form-bold" />
+		<div><a href="#" onclick="$('#ucp input:checkbox').prop('checked', true); return false;">{{ lang('MARK_ALL') }}</a> &bull; <a href="#" onclick="$('#ucp input:checkbox').prop('checked', false); return false;">{{ lang('UNMARK_ALL') }}</a></div>
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+{% endif %}
+
+</form>
+{% endblock %}

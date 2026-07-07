@@ -1,0 +1,24 @@
+{% if S_TYPE == 1 %}
+<div class="panel captcha-panel">
+	<div class="inner">
+
+	<h3 class="captcha-title">{{ lang('CONFIRMATION') }}</h3>
+	<p>{{ lang('CONFIRM_EXPLAIN') }}</p>
+
+	<fieldset class="fields2">
+{% endif %}
+
+	<dl>
+		<dt><label for="confirm_code">{{ lang('CONFIRM_CODE') }}{{ lang('COLON') }}</label></dt>
+		<dd class="captcha captcha-image"><img src="{{ CONFIRM_IMAGE_LINK }}" alt="{{ lang('CONFIRM_CODE') }}" /></dd>
+		<dd><input type="text" name="confirm_code" id="confirm_code" size="8" maxlength="8" tabindex="{{ definition.CAPTCHA_TAB_INDEX }}" class="inputbox narrow" title="{{ lang('CONFIRM_CODE') }}" />
+		{% if S_CONFIRM_REFRESH %}<input type="submit" name="refresh_vc" id="refresh_vc" class="button1 button button-form-bold" value="{{ lang('VC_REFRESH') }}" />{% endif %}
+		<input type="hidden" name="confirm_id" id="confirm_id" value="{{ CONFIRM_ID }}" /></dd>
+		<dd>{{ lang('CONFIRM_CODE_EXPLAIN') }}</dd>
+	</dl>
+
+{% if S_TYPE == 1 %}
+	</fieldset>
+	</div>
+</div>
+{% endif %}

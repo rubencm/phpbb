@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if TOPIC_TITLE %}
+	<h2 class="posting-title">{% EVENT posting_topic_title_before %}<a href="{{ U_VIEW_TOPIC }}">{{ TOPIC_TITLE }}</a>{% EVENT posting_topic_title_after %}</h2>
+{% else %}
+	<h2 class="posting-title"><a href="{{ U_VIEW_FORUM }}">{{ FORUM_NAME }}</a></h2>
+ {% endif %}
+
+{% if S_FORUM_RULES %}
+	<div class="rules{% if U_FORUM_RULES %} rules-link{% endif %}">
+		<div class="inner">
+
+		{% if U_FORUM_RULES %}
+			<a href="{{ U_FORUM_RULES }}">{{ lang('FORUM_RULES') }}</a>
+		{% else %}
+			<strong>{{ lang('FORUM_RULES') }}</strong><br />
+			{{ FORUM_RULES }}
+		{% endif %}
+
+		</div>
+	</div>
+{% endif %}
+
+<form id="postform" method="post" action="{{ S_POST_ACTION }}"{{ S_FORM_ENCTYPE }}>
+
+{% if S_DRAFT_LOADED %}
+	<div class="panel">
+		<div class="inner">
+
+		<h3>{{ lang('INFORMATION') }}</h3>
+		<p>{{ lang('DRAFT_LOADED') }}</p>
+
+		</div>
+	</div>
+{% endif %}
+
+{% if S_SHOW_DRAFTS %}{% include 'drafts.html' %}{% endif %}
+
+{% if S_POST_REVIEW %}{% include 'posting_review.html' %}{% endif %}
+
+{% if S_DISPLAY_PREVIEW %}{% include 'posting_preview.html' %}{% endif %}
+
+<div class="panel" id="postingbox">
+	<div class="inner">
+
+	<h3>{{ lang('POST_A') }}</h3>
+
+	{% DEFINE EXTRA_POSTING_OPTIONS = 1 %}
+	{% include 'posting_editor.html' %}
+	<input type="hidden" name="show_panel" value="options-panel" />
+	{{ S_FORM_TOKEN }}
+	</div>
+</div>
+
+{% if S_SHOW_ATTACH_BOX and FILTERS %}{% include 'posting_attach_body.html' %}{% endif %}
+
+{% if S_SHOW_POLL_BOX or S_POLL_DELETE %}{% include 'posting_poll_body.html' %}{% endif %}
+
+{% EVENT posting_layout_include_panel_body %}
+
+{% if S_DISPLAY_REVIEW %}{% include 'posting_topic_review.html' %}{% endif %}
+
+</form>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends 'base_ucp.html' %}
+
+{% block ucp_content %}
+<h2>{{ lang('USERGROUPS') }}</h2>
+
+<form id="ucp" method="post" action="{{ S_UCP_ACTION }}"{{ S_FORM_ENCTYPE }}>
+
+<div class="panel">
+	<div class="inner">
+
+	<p>{{ lang('GROUPS_EXPLAIN') }}</p>
+	{% DEFINE SHOW_BUTTONS = 0 %}
+	{% if loops.leader|length %}
+		<ul class="topiclist two-columns">
+			<li class="header">
+				<dl>
+					<dt><div class="list-inner">{{ lang('GROUP_LEADER') }}</div></dt>
+					<dd class="mark">{{ lang('SELECT') }}</dd>
+				</dl>
+			</li>
+		</ul>
+		<ul class="topiclist cplist two-columns">
+
+		{% for leader in loops.leader %}
+		{% if not leader.GROUP_SPECIAL %}
+			{% DEFINE SHOW_BUTTONS = 1 %}
+		{% endif %}
+		<li class="row{% if leader.S_ROW_COUNT is odd %} bg1{% else %} bg2{% endif %}">
+			<dl>
+				<dt>
+					<div class="list-inner">
+						{% if S_CHANGE_DEFAULT %}<input title="{{ lang('CHANGE_DEFAULT_GROUP') }}" type="radio" name="default"{% if leader.S_GROUP_DEFAULT %} checked="checked"{% endif %} value="{{ leader.GROUP_ID }}" /> {% endif %}
+						<a href="{{ leader.U_VIEW_GROUP }}" class="forumtitle"{% if leader.GROUP_COLOUR %} style="color:#{{ leader.GROUP_COLOUR }}"{% endif %}>{{ leader.GROUP_NAME }}</a>
+						{% if leader.GROUP_DESC %}<br />{{ leader.GROUP_DESC }}{% endif %}
+						{% if not leader.GROUP_SPECIAL %}<br /><i>{{ leader.GROUP_STATUS }}</i>{% endif %}
+					</div>
+				</dt>
+				<dd class="mark"><input type="radio" name="selected" value="{{ leader.GROUP_ID }}" {% if leader.GROUP_SPECIAL %}disabled="disabled"{% endif %} /></dd>
+			</dl>
+		</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if loops.member|length %}
+		<ul class="topiclist two-columns">
+			<li class="header">
+				<dl>
+					<dt><div class="list-inner">{{ lang('GROUP_MEMBER') }}</div></dt>
+					<dd class="mark">{{ lang('SELECT') }}</dd>
+				</dl>
+			</li>
+		</ul>
+		<ul class="topiclist cplist two-columns">
+
+		{% for member in loops.member %}
+		{% if not member.GROUP_SPECIAL %}
+			{% DEFINE SHOW_BUTTONS = 1 %}
+		{% endif %}
+		<li class="row{% if member.S_ROW_COUNT is odd %} bg1{% else %} bg2{% endif %}">
+			<dl>
+				<dt>
+					<div class="list-inner">
+						{% if S_CHANGE_DEFAULT %}<input title="{{ lang('CHANGE_DEFAULT_GROUP') }}" type="radio" name="default"{% if member.S_GROUP_DEFAULT %} checked="checked"{% endif %} value="{{ member.GROUP_ID }}" /> {% endif %}
+						<a href="{{ member.U_VIEW_GROUP }}" class="forumtitle"{% if member.GROUP_COLOUR %} style="color:#{{ member.GROUP_COLOUR }}"{% endif %}>{{ member.GROUP_NAME }}</a>
+						{% if member.GROUP_DESC %}<br />{{ member.GROUP_DESC }}{% endif %}
+						{% if not member.GROUP_SPECIAL %}<br /><i>{{ member.GROUP_STATUS }}</i>{% endif %}
+					</div>
+				</dt>
+				<dd class="mark"><input type="radio" name="selected" value="{{ member.GROUP_ID }}" {% if member.GROUP_SPECIAL %}disabled="disabled"{% endif %} /></dd>
+			</dl>
+		</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+	</div>
+</div>
+
+{% if loops.pending|length %}
+<div class="panel">
+	<div class="inner">
+		<ul class="topiclist two-columns">
+			<li class="header">
+				<dl>
+					<dt><div class="list-inner">{{ lang('GROUP_PENDING') }}</div></dt>
+					<dd class="mark">{{ lang('SELECT') }}</dd>
+				</dl>
+			</li>
+		</ul>
+		<ul class="topiclist cplist two-columns">
+
+		{% for pending in loops.pending %}
+		{% if not pending.GROUP_SPECIAL %}
+			{% DEFINE SHOW_BUTTONS = 1 %}
+		{% endif %}
+		<li class="row{% if pending.S_ROW_COUNT is odd %} bg1{% else %} bg2{% endif %}">
+			<dl>
+				<dt>
+					<div class="list-inner">
+						<a href="{{ pending.U_VIEW_GROUP }}" class="forumtitle"{% if pending.GROUP_COLOUR %} style="color:#{{ pending.GROUP_COLOUR }}"{% endif %}>{{ pending.GROUP_NAME }}</a>
+						{% if pending.GROUP_DESC %}<br />{{ pending.GROUP_DESC }}{% endif %}
+						{% if not pending.GROUP_SPECIAL %}<br /><i>{{ pending.GROUP_STATUS }}</i>{% endif %}
+					</div>
+				</dt>
+				<dd class="mark"><input type="radio" name="selected" value="{{ pending.GROUP_ID }}" {% if pending.GROUP_SPECIAL %}disabled="disabled"{% endif %} /></dd>
+			</dl>
+		</li>
+		{% endfor %}
+		</ul>
+	</div>
+</div>
+{% endif %}
+{% if loops.nonmember|length %}
+<div class="panel">
+	<div class="inner">
+		<ul class="topiclist two-columns">
+			<li class="header">
+				<dl>
+					<dt><div class="list-inner">{{ lang('GROUP_NONMEMBER') }}</div></dt>
+					<dd class="mark">{{ lang('SELECT') }}</dd>
+				</dl>
+			</li>
+		</ul>
+		<ul class="topiclist cplist two-columns">
+
+		{% for nonmember in loops.nonmember %}
+		{% if nonmember.S_CAN_JOIN %}
+			{% DEFINE SHOW_BUTTONS = 1 %}
+		{% endif %}
+		<li class="row{% if nonmember.S_ROW_COUNT is odd %} bg1{% else %} bg2{% endif %}">
+			<dl>
+				<dt>
+					<div class="list-inner">
+						<a href="{{ nonmember.U_VIEW_GROUP }}" class="forumtitle"{% if nonmember.GROUP_COLOUR %} style="color:#{{ nonmember.GROUP_COLOUR }}"{% endif %}>{{ nonmember.GROUP_NAME }}</a>
+						{% if nonmember.GROUP_DESC %}<br />{{ nonmember.GROUP_DESC }}{% endif %}
+						{% if not nonmember.GROUP_SPECIAL %}<br /><i>{{ nonmember.GROUP_STATUS }}</i>{% endif %}
+					</div>
+				</dt>
+				<dd class="mark"><input type="radio" name="selected" value="{{ nonmember.GROUP_ID }}" {% if not nonmember.S_CAN_JOIN %}disabled="disabled"{% endif %} /></dd>
+			</dl>
+		</li>
+		{% endfor %}
+		</ul>
+		</div>
+	</div>
+{% endif %}
+
+
+	{% if S_CHANGE_DEFAULT or definition.SHOW_BUTTONS == 1 %}
+	<fieldset>
+		{% if S_CHANGE_DEFAULT %}
+		<div class="left-box">
+			<input class="button1 button button-form-bold" type="submit" name="change_default" value="{{ lang('CHANGE_DEFAULT_GROUP') }}" />
+			{{ S_FORM_TOKEN }}
+		</div>
+		{% endif %}
+
+		{% if definition.SHOW_BUTTONS == 1 %}
+		<div class="right-box">
+			<label for="action">{{ lang('SELECT') }}{{ lang('COLON') }}</label>
+			<select name="action" id="action">
+				<option value="join">{{ lang('JOIN_SELECTED') }}</option>
+				<option value="resign">{{ lang('RESIGN_SELECTED') }}</option>
+				<option value="demote">{{ lang('DEMOTE_SELECTED') }}</option>
+			</select>&nbsp;
+			<input class="button1 button button-form-bold" type="submit" name="submit" value="{{ lang('SUBMIT') }}" />
+			{{ S_FORM_TOKEN }}
+		</div>
+		{% endif %}
+	</fieldset>
+	{% endif %}
+
+</form>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base_mcp.html' %}
+
+{% block mcp_content %}
+<form method="post" id="mcp" action="{{ U_POST_ACTION }}">
+
+<h2>{{ lang('MCP_WARN_POST') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+
+	<h3>{% if USER_COLOR %}<span style="color: #{{ USER_COLOR }}">{{ USERNAME }}</span>{% else %}{{ USERNAME }}{% endif %}</h3>
+
+	<div>
+		<div class="column1">
+			{% include 'avatar.html' with {'avatar_data': USER_AVATAR} only %}
+		</div>
+
+		<div class="column2">
+			<dl class="details">
+				{% if RANK_TITLE %}<dt>{{ lang('RANK') }}{{ lang('COLON') }}</dt><dd>{{ RANK_TITLE }}</dd>{% endif %}
+				{% if RANK_IMG %}<dt>{% if RANK_TITLE %}&nbsp;{% else %}{{ lang('RANK') ~ lang('COLON') }}{% endif %}</dt><dd class="rank-img">{{ RANK_IMG }}</dd>{% endif %}
+				<dt>{{ lang('JOINED') }}{{ lang('COLON') }}</dt><dd>{{ JOINED }}</dd>
+				<dt>{{ lang('TOTAL_POSTS') }}{{ lang('COLON') }}</dt><dd>{{ POSTS }}</dd>
+				<dt>{{ lang('WARNINGS') }}{{ lang('COLON') }} </dt><dd>{{ WARNINGS }}</dd>
+			</dl>
+		</div>
+	</div>
+
+	</div>
+</div>
+
+<div class="panel">
+	<div class="inner">
+
+	<h3>{{ lang('POST_DETAILS') }}</h3>
+
+	<div class="postbody">
+
+		<div class="content">
+			{{ POST }}
+		</div>
+
+	</div>
+
+	</div>
+</div>
+
+{% EVENT mcp_warn_post_add_warning_field_before %}
+
+<div class="panel">
+	<div class="inner">
+
+	<h3>{{ lang('ADD_WARNING') }}</h3>
+	<p>{{ lang('ADD_WARNING_EXPLAIN') }}</p>
+
+	<fieldset>
+		<textarea name="warning" id="warning" class="inputbox" cols="40" rows="3">{{ lang('WARNING_POST_DEFAULT') }}</textarea>
+		{% if S_CAN_NOTIFY %}
+		<br /><br />
+		<dl class="panel">
+			<dt>&nbsp;</dt>
+			<dd><label><input type="checkbox" name="notify_user" checked="checked" /> {{ lang('NOTIFY_USER_WARN') }}</label></dd>
+		</dl>
+		{% endif %}
+	</fieldset>
+
+	</div>
+</div>
+
+{% EVENT mcp_warn_post_add_warning_field_after %}
+
+<fieldset class="submit-buttons">
+	<input type="submit" name="action[add_warning]" value="{{ lang('SUBMIT') }}" class="button1 button button-form" />
+	{{ S_FORM_TOKEN }}
+</fieldset>
+</form>
+{% endblock %}
