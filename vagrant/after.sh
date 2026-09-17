@@ -7,7 +7,7 @@ PHPBB_INSTALL="${PHPBB_PATH}/vagrant/phpbb-install-config.yml"
 
 # Ensure composer deps are installed
 cd ${PHPBB_PATH}/phpBB
-php${PHP_VERSION} ../composer.phar install
+../composer.phar install
 
 # Backup and remove current config.php file
 if [ -e ${PHPBB_CONFIG} ]

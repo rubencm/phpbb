@@ -24,7 +24,7 @@ To run an installation from the repo (and not from a pre-built package) on a loc
 - Install phpBB's dependencies (from the root of your phpbb repo):
   ```
   cd phpBB
-  php ../composer.phar install
+  ../composer.phar install
   ```
 
 Alternatively, you can read:

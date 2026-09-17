@@ -13,7 +13,7 @@ be installed via Composer together with other development dependencies as
 follows.
 
     $ cd phpBB
-    $ php ../composer.phar install --dev
+    $ ../composer.phar install --dev
     $ cd ..
 
 PHP extensions

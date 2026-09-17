@@ -74,7 +74,7 @@ else
 	{
 		trigger_error(
 			'Composer dependencies have not been set up yet, run ' .
-			"'php ../composer.phar install' from the phpBB directory to do so.",
+			"'../composer.phar install' from the phpBB directory to do so.",
 			E_USER_ERROR
 		);
 	}

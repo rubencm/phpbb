@@ -71,7 +71,7 @@ class core extends Extension
 			{
 				trigger_error(
 					'Composer development dependencies have not been set up for the ' . $container->getParameter('core.environment') . ' environment yet, run ' .
-					"'php ../composer.phar install --dev' from the phpBB directory to do so.",
+					"'../composer.phar install --dev' from the phpBB directory to do so.",
 					E_USER_ERROR
 				);
 			}
